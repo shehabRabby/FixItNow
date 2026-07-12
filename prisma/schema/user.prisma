@@ -1,0 +1,30 @@
+model User {
+  id                String             @id @default(uuid()) @db.Uuid
+  email             String             @unique
+  password          String
+  name              String
+  role              UserRole
+  status            UserStatus         @default(ACTIVE)
+  createdAt         DateTime           @default(now())
+  updatedAt         DateTime           @updatedAt
+  technicianProfile TechnicianProfile?
+  bookings          Booking[]          @relation("CustomerBookings")
+  reviews           Review[]
+
+  @@map("users")
+}
+
+model TechnicianProfile {
+  id                String    @id @default(uuid()) @db.Uuid
+  userId            String    @unique @db.Uuid
+  user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  skills            String // Comma separated tags map logic inside code block
+  experienceYears   Int
+  bio               String    @db.Text
+  availabilitySlots String // Serialized schedule representation tracking
+  ratingAverage     Float     @default(0.0)
+  services          Service[]
+  reviews           Review[]
+
+  @@map("technician_profiles")
+}

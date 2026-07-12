@@ -1,0 +1,45 @@
+model Booking {
+  id         String        @id @default(uuid()) @db.Uuid
+  customerId String        @db.Uuid
+  customer   User          @relation("CustomerBookings", fields: [customerId], references: [id], onDelete: Cascade)
+  serviceId  String        @db.Uuid
+  service    Service       @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  timeSlot   String
+  status     BookingStatus @default(REQUESTED)
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+  payment    Payment?
+  review     Review?
+
+  @@map("bookings")
+}
+
+model Payment {
+  id            String          @id @default(uuid()) @db.Uuid
+  bookingId     String          @unique @db.Uuid
+  booking       Booking         @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  amount        Float
+  method        String
+  provider      PaymentProvider
+  status        PaymentStatus   @default(PENDING)
+  transactionId String          @unique
+  paidAt        DateTime?
+
+  @@map("payments")
+}
+
+model Review {
+  id                  String            @id @default(uuid()) @db.Uuid
+  bookingId           String            @unique @db.Uuid
+  booking             Booking           @relation(fields: [bookingId], references: [id], onDelete: Cascade)
+  customerId          String            @db.Uuid
+  customer            User              @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  technicianProfileId String            @db.Uuid
+  technicianProfile   TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+  rating              Int
+  comment             String            @db.Text
+  createdAt           DateTime          @default(now())
+  updatedAt           DateTime          @updatedAt
+
+  @@map("reviews")
+}

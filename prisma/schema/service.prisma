@@ -1,0 +1,24 @@
+model Category {
+  id          String    @id @default(uuid()) @db.Uuid
+  name        String    @unique
+  description String    @db.Text
+  slug        String    @unique
+  services    Service[]
+
+  @@map("categories")
+}
+
+model Service {
+  id                  String            @id @default(uuid()) @db.Uuid
+  title               String
+  description         String            @db.Text
+  price               Float
+  location            String
+  categoryId          String            @db.Uuid
+  category            Category          @relation(fields: [categoryId], references: [id], onDelete: Restrict)
+  technicianProfileId String            @db.Uuid
+  technicianProfile   TechnicianProfile @relation(fields: [technicianProfileId], references: [id], onDelete: Cascade)
+  bookings            Booking[]
+
+  @@map("services")
+}
