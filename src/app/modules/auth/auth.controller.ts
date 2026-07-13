@@ -7,7 +7,6 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   const result = await AuthService.loginUser(req.body);
   const { refreshToken, accessToken, user } = result;
 
-  // Set secure refresh token inside cookie storage dynamic layer config
   res.cookie("refreshToken", refreshToken, {
     secure: process.env.NODE_ENV === "production",
     httpOnly: true,
@@ -23,6 +22,15 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+
+const getMyProfile = catchAsync(async (req: Request, res: Response) => {
+  res.status(httpStatus.OK).json({
+    success: true,
+    data: req.user,
+  });
+});
+
 export const AuthController = {
   loginUser,
+  getMyProfile,
 };
