@@ -13,4 +13,9 @@ router.post(
   ServiceController.createService,
 );
 
+
+router.get("/", ServiceController.getAllServices);
+router.get("/:id", ServiceController.getSingleService);
+router.delete("/:id", auth("TECHNICIAN"), ServiceController.deleteService);
+
 export const ServiceRoutes = router;

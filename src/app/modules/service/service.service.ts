@@ -24,6 +24,43 @@ const createServiceInDB = async (userId: string, serviceData: any) => {
   return result;
 };
 
+const getAllServicesFromDB = async () => {
+  const result = await prisma.service.findMany({
+    include: {
+      category: true,
+      technicianProfile: {
+        include: {
+          user: {
+            select: { name: true, email: true },
+          },
+        },
+      },
+    },
+  });
+  return result;
+};
+
+const getSingleServiceFromDB = async (id: string) => {
+  const result = await prisma.service.findUnique({
+    where: { id },
+    include: {
+      category: true,
+      technicianProfile: true,
+    },
+  });
+  return result;
+};
+
+const deleteServiceFromDB = async (id: string) => {
+  const result = await prisma.service.delete({
+    where: { id },
+  });
+  return result;
+};
+
 export const ServiceService = {
   createServiceInDB,
+  getAllServicesFromDB,
+  getSingleServiceFromDB,
+  deleteServiceFromDB,
 };
