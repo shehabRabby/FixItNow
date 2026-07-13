@@ -28,6 +28,22 @@ const updateTechnicianValidationSchema = z.object({
   }),
 });
 
+const updateAvailabilitySlotsValidationSchema = z.object({
+  body: z.object({
+    availabilitySlots: z
+      .array(
+        z.string({
+          message: "Each time slot must be a valid string",
+        }),
+        {
+          message: "Availability slots must be a valid list of times",
+        },
+      )
+      .min(1, "At least one availability slot must be provided"),
+  }),
+});
+
 export const TechnicianValidation = {
   updateTechnicianValidationSchema,
+  updateAvailabilitySlotsValidationSchema,
 };

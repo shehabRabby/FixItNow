@@ -31,7 +31,26 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const updateAvailabilitySlots = catchAsync(
+  async (req: Request, res: Response) => {
+    const userId = req.user?.id;
+    const { availabilitySlots } = req.body;
+
+    const result = await TechnicianService.updateAvailabilitySlotsInDB(
+      userId,
+      availabilitySlots,
+    );
+
+    res.status(httpStatus.OK).json({
+      success: true,
+      message: "Availability slots updated successfully!",
+      data: result,
+    });
+  },
+);
+
 export const TechnicianController = {
   getMyProfile,
   updateMyProfile,
+  updateAvailabilitySlots,
 };

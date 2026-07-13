@@ -71,7 +71,36 @@ const updateTechnicianProfileInDB = async (userId: string, payload: any) => {
   return result;
 };
 
+const updateAvailabilitySlotsInDB = async (
+  userId: string,
+  slotsArray: string[],
+) => {
+  const serializedSlots = slotsArray.join(", ");
+
+  const result = await prisma.technicianProfile.upsert({
+    where: { userId },
+    update: {
+      availabilitySlots: serializedSlots,
+    },
+    create: {
+      userId,
+      skills: "",
+      experienceYears: 0,
+      bio: "",
+      availabilitySlots: serializedSlots,
+    },
+  });
+
+  return {
+    ...result,
+    availabilitySlots: result.availabilitySlots
+      ? result.availabilitySlots.split(", ")
+      : [],
+  };
+};
+
 export const TechnicianService = {
   getTechnicianProfileFromDB,
   updateTechnicianProfileInDB,
+  updateAvailabilitySlotsInDB,
 };

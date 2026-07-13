@@ -18,10 +18,10 @@ model TechnicianProfile {
   id                String    @id @default(uuid()) @db.Uuid
   userId            String    @unique @db.Uuid
   user              User      @relation(fields: [userId], references: [id], onDelete: Cascade)
-  skills            String // Comma separated tags map logic inside code block
+  skills            String 
   experienceYears   Int
   bio               String    @db.Text
-  availabilitySlots String // Serialized schedule representation tracking
+  availabilitySlots String 
   ratingAverage     Float     @default(0.0)
   services          Service[]
   reviews           Review[]
