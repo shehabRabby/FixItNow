@@ -6,6 +6,8 @@ import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { AuthRoutes } from "./app/modules/auth/auth.route";
 import { UserRoutes } from "./app/modules/user/user.route";
 import { TechnicianRoutes } from "./app/modules/technician/technician.route";
+import { ServiceRoutes } from "./app/modules/service/service.routes";
+import { CategoryRoutes } from "./app/modules/category/category.routes";
 
 const app: Application = express();
 
@@ -23,6 +25,8 @@ app.use(cookieParser());
 app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/auth", AuthRoutes);
 app.use("/api/v1/technicians", TechnicianRoutes);
+app.use("/api/v1/services", ServiceRoutes);
+app.use("/api/v1/categories", CategoryRoutes);
 
 
 
