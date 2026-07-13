@@ -9,6 +9,7 @@ import { TechnicianRoutes } from "./app/modules/technician/technician.route";
 import { ServiceRoutes } from "./app/modules/service/service.routes";
 import { CategoryRoutes } from "./app/modules/category/category.routes";
 import { BookingRoutes } from "./app/modules/booking/booking.routes";
+import { ProfileRoutes } from "./app/modules/profile/profile.routes";
 
 const app: Application = express();
 
@@ -29,6 +30,7 @@ app.use("/api/v1/technicians", TechnicianRoutes);
 app.use("/api/v1/services", ServiceRoutes);
 app.use("/api/v1/categories", CategoryRoutes);
 app.use("/api/v1/bookings", BookingRoutes);
+app.use("/api/v1/profile", ProfileRoutes);
 
 
 app.get("/", (req: Request, res: Response) => {
