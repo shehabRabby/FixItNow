@@ -5,6 +5,7 @@ import config from "./config";
 import globalErrorHandler from "./app/middlewares/globalErrorHandler";
 import { AuthRoutes } from "./app/modules/auth/auth.route";
 import { UserRoutes } from "./app/modules/user/user.route";
+import { TechnicianRoutes } from "./app/modules/technician/technician.route";
 
 const app: Application = express();
 
@@ -21,6 +22,7 @@ app.use(cookieParser());
 
 app.use("/api/v1/users", UserRoutes);
 app.use("/api/v1/auth", AuthRoutes);
+app.use("/api/v1/technicians", TechnicianRoutes);
 
 
 
