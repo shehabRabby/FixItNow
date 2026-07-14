@@ -1,9 +1,9 @@
 import { NextFunction, Request, Response } from "express";
-import httpStatus from "http-status";
 import jwt, { Secret } from "jsonwebtoken";
 import config from "../../config";
 import catchAsync from "../utils/catchAsync";
-
+import { prisma } from "../../lib/prisma";
+import { UserStatus } from "../../../generated/prisma/enums";
 
 declare global {
   namespace Express {
@@ -21,11 +21,27 @@ const auth = (...requiredRoles: string[]) => {
       throw new Error("You are not authorized!");
     }
 
-    // Verify token
-    const decoded = jwt.verify(token, config.jwt_access_secret as Secret);
+    //  Verify token
+    const decoded = jwt.verify(
+      token,
+      config.jwt_access_secret as Secret,
+    ) as any;
     req.user = decoded;
 
-    // Role verification 
+    // Check if user exists and is not banned
+    const user = await prisma.user.findUnique({
+      where: { id: decoded.id || decoded.userId },
+    });
+
+    if (!user) {
+      throw new Error("User does not exist anymore!");
+    }
+
+    if (user.status === ("BANNED" as UserStatus)) {
+      throw new Error("Your account has been BANNED! Please contact support.");
+    }
+
+    // Role verification
     if (requiredRoles.length && !requiredRoles.includes(req.user.role)) {
       throw new Error("You are forbidden!");
     }

@@ -29,6 +29,23 @@ const createBookingInDB = async (
   return result;
 };
 
+const getSingleBookingFromDB = async (id: string, currentUser: any) => {
+  const result = await prisma.booking.findUnique({
+    where: { id },
+  });
+
+  if (!result) {
+    throw new Error("Booking not found!");
+  }
+
+  // if the current user is not an admin and is not the owner of the booking, throw an error
+  if (currentUser.role !== "ADMIN" && result.customerId !== currentUser.id) {
+    throw new Error("You are not authorized to view this booking!");
+  }
+
+  return result;
+};
+
 const getAllBookingsFromDB = async (userId: string, role: string) => {
   let result;
 
@@ -57,7 +74,11 @@ const getAllBookingsFromDB = async (userId: string, role: string) => {
   return result;
 };
 
-const updateBookingStatusInDB = async (id: string, status: string) => {
+const updateBookingStatusInDB = async (
+  id: string,
+  status: string,
+  currentUser: any,
+) => {
   const isBookingExist = await prisma.booking.findUnique({
     where: { id },
   });
@@ -65,12 +86,33 @@ const updateBookingStatusInDB = async (id: string, status: string) => {
   if (!isBookingExist) {
     throw new Error("Booking not found!");
   }
+
   const validatedStatus = BookingStatus[status as keyof typeof BookingStatus];
   if (!validatedStatus) {
     throw new Error(
       `Invalid status value provided! Expected one of: ${Object.keys(BookingStatus).join(", ")}`,
     );
   }
+
+  // if booking is already COMPLETED, it cannot be changed to any other status
+  if (isBookingExist.status === "COMPLETED") {
+    throw new Error(
+      "Cannot change the status of an already COMPLETED booking!",
+    );
+  }
+
+  // Role-Based Authorization
+  // customer does not have permission to set status to ACCEPTED or COMPLETED
+  if (
+    currentUser.role === "CUSTOMER" &&
+    (validatedStatus === "ACCEPTED" || validatedStatus === "COMPLETED")
+  ) {
+    throw new Error(
+      "As a CUSTOMER, you are not authorized to accept or complete a booking!",
+    );
+  }
+
+  // all checks passed, proceed to update the booking status
   const result = await prisma.booking.update({
     where: { id },
     data: {
@@ -106,9 +148,9 @@ const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
   return result;
 };
 
-
 export const BookingService = {
   createBookingInDB,
+  getSingleBookingFromDB,
   getAllBookingsFromDB,
   updateBookingStatusInDB,
   cancelBookingByCustomerInDB,

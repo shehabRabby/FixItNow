@@ -35,8 +35,13 @@ const getAllBookings = catchAsync(async (req: Request, res: Response) => {
 const updateBookingStatus = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const { status } = req.body;
+  const currentUser = req.user;
 
-  const result = await BookingService.updateBookingStatusInDB(id, status);
+  const result = await BookingService.updateBookingStatusInDB(
+    id,
+    status,
+    currentUser,
+  );
 
   res.status(httpStatus.OK).json({
     success: true,
