@@ -65,7 +65,96 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
   return updatedData;
 };
 
+
+
+const getDashboardOverviewFromDB = async (userId: string, role: string) => {
+  if (role === "CUSTOMER") {
+    const totalBookings = await prisma.booking.count({
+      where: { customerId: userId },
+    });
+
+    const pendingPayments = await prisma.booking.count({
+      where: { customerId: userId, status: "ACCEPTED" }, 
+    });
+
+    const completedJobs = await prisma.booking.count({
+      where: { customerId: userId, status: "COMPLETED" },
+    });
+
+    return {
+      role,
+      totalBookings,
+      pendingPayments,
+      completedJobs,
+    };
+  }
+
+  if (role === "TECHNICIAN") {
+    // technician total jobs assigned, completed jobs, total earning, average rating
+    const technicianProfile = await prisma.technicianProfile.findUnique({
+      where: { userId },
+    });
+
+    if (!technicianProfile) {
+      throw new Error("Technician profile not found!");
+    }
+
+    const totalJobsAssigned = await prisma.booking.count({
+      where: { service: { technicianProfileId: technicianProfile.id } },
+    });
+
+    const completedJobs = await prisma.booking.count({
+      where: { 
+        service: { technicianProfileId: technicianProfile.id },
+        status: "COMPLETED"
+      },
+    });
+
+    // only compeleted job count
+    const totalEarningAgg = await prisma.payment.aggregate({
+      where: {
+        booking: { service: { technicianProfileId: technicianProfile.id } },
+        status: "COMPLETED",
+      },
+      _sum: {
+        amount: true,
+      },
+    });
+
+    return {
+      role,
+      ratingAverage: technicianProfile.ratingAverage,
+      totalJobsAssigned,
+      completedJobs,
+      totalEarning: totalEarningAgg._sum.amount || 0,
+    };
+  }
+
+  if (role === "ADMIN") {
+    const totalCustomers = await prisma.user.count({ where: { role: "CUSTOMER" } });
+    const totalTechnicians = await prisma.user.count({ where: { role: "TECHNICIAN" } });
+    const totalServices = await prisma.service.count();
+    
+    const totalRevenueAgg = await prisma.payment.aggregate({
+      where: { status: "COMPLETED" },
+      _sum: { amount: true },
+    });
+
+    return {
+      role,
+      totalCustomers,
+      totalTechnicians,
+      totalServices,
+      totalRevenue: totalRevenueAgg._sum.amount || 0,
+    };
+  }
+
+  throw new Error("Invalid user role!");
+};
+
+
 export const ProfileService = {
   getMyProfileFromDB,
   updateMyProfileInDB,
+  getDashboardOverviewFromDB,
 };

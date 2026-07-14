@@ -9,14 +9,20 @@ const router = express.Router();
 router.get(
   "/my-profile",
   auth("CUSTOMER", "TECHNICIAN", "ADMIN"),
-  ProfileController.getMyProfile
+  ProfileController.getMyProfile,
 );
 
 router.patch(
   "/update-profile",
   auth("CUSTOMER", "TECHNICIAN", "ADMIN"),
   validateRequest(ProfileValidation.updateProfileValidationSchema),
-  ProfileController.updateMyProfile
+  ProfileController.updateMyProfile,
+);
+
+router.get(
+  "/dashboard-overview",
+  auth("CUSTOMER", "TECHNICIAN", "ADMIN"),
+  ProfileController.getDashboardOverview,
 );
 
 export const ProfileRoutes = router;

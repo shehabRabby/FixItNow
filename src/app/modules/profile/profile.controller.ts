@@ -28,7 +28,20 @@ const updateMyProfile = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getDashboardOverview = catchAsync(async (req: Request, res: Response) => {
+  const user = req.user as any; 
+
+  const result = await ProfileService.getDashboardOverviewFromDB(user.id, user.role);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Dashboard overview data fetched successfully!",
+    data: result,
+  });
+});
+
 export const ProfileController = {
   getMyProfile,
   updateMyProfile,
+  getDashboardOverview,
 };
