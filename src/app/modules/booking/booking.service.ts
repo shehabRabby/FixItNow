@@ -124,6 +124,7 @@ const updateBookingStatusInDB = async (
   return result;
 };
 
+
 const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
   const booking = await prisma.booking.findUnique({
     where: { id },
@@ -137,6 +138,17 @@ const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
     throw new Error("You are not authorized to cancel this booking!");
   }
 
+  // State Machine Check
+  // already booking is COMPLETED or CANCELLED, then cannot cancel it again
+  if (booking.status === "COMPLETED") {
+    throw new Error("Cannot cancel a booking that is already COMPLETED!");
+  }
+  
+  if (booking.status === "CANCELLED") {
+    throw new Error("This booking has already been CANCELLED!");
+  }
+
+  // all checks passed, status will be updated to CANCELLED
   const result = await prisma.booking.update({
     where: { id },
     data: {

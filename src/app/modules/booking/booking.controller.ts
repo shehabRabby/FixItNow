@@ -52,8 +52,7 @@ const updateBookingStatus = catchAsync(async (req: Request, res: Response) => {
 
 const cancelBooking = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
-  const customerId = req.user?.id as string;
-
+  const customerId = (req.user as any).id;
   const result = await BookingService.cancelBookingByCustomerInDB(
     id,
     customerId,
