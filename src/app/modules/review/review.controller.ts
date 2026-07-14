@@ -4,7 +4,7 @@ import { ReviewService } from "./review.service";
 import catchAsync from "../../utils/catchAsync";
 
 const createReview = catchAsync(async (req: Request, res: Response) => {
-  const customerId = (req.user as any).id;
+  const customerId = req.user?.id as string;
   const reviewData = req.body;
 
   const result = await ReviewService.createReviewInDB(customerId, reviewData);
@@ -29,6 +29,6 @@ const getAllReviews = catchAsync(async (req: Request, res: Response) => {
 });
 
 export const ReviewController = {
-  createReview, 
+  createReview,
   getAllReviews,
 };

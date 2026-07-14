@@ -9,6 +9,7 @@ const createReviewValidationSchema = z.object({
       .number({
         message: "Rating is required",
       })
+      .int({ message: "Rating must be a whole number (integer)" })
       .min(1, "Rating must be at least 1")
       .max(5, "Rating cannot be more than 5"),
     comment: z.string({

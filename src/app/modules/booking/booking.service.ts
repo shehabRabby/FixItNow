@@ -94,25 +94,55 @@ const updateBookingStatusInDB = async (
     );
   }
 
-  // if booking is already COMPLETED, it cannot be changed to any other status
-  if (isBookingExist.status === "COMPLETED") {
-    throw new Error(
-      "Cannot change the status of an already COMPLETED booking!",
-    );
-  }
+  const currentStatus = isBookingExist.status;
 
-  // Role-Based Authorization
-  // customer does not have permission to set status to ACCEPTED or COMPLETED
+  // if the booking is already in a terminal state, it cannot be updated further
   if (
-    currentUser.role === "CUSTOMER" &&
-    (validatedStatus === "ACCEPTED" || validatedStatus === "COMPLETED")
+    currentStatus === "COMPLETED" ||
+    currentStatus === "CANCELLED" ||
+    currentStatus === "DECLINED"
   ) {
     throw new Error(
-      "As a CUSTOMER, you are not authorized to accept or complete a booking!",
+      `Cannot change the status of a booking that is already ${currentStatus}!`,
     );
   }
 
-  // all checks passed, proceed to update the booking status
+  if (currentStatus === "REQUESTED") {
+    if (validatedStatus !== "ACCEPTED" && validatedStatus !== "DECLINED") {
+      throw new Error(
+        "From REQUESTED, booking can only be updated to ACCEPTED or DECLINED!",
+      );
+    }
+  } else if (currentStatus === "ACCEPTED") {
+    // if Accepted, it must be PAID before moving to next status
+    if (validatedStatus !== "PAID") {
+      throw new Error(
+        "An ACCEPTED booking must be PAID before processing further!",
+      );
+    }
+  } else if (currentStatus === "PAID") {
+    if (validatedStatus !== "IN_PROGRESS") {
+      throw new Error("A PAID booking can only be moved to IN_PROGRESS!");
+    }
+  } else if (currentStatus === "IN_PROGRESS") {
+    if (validatedStatus !== "COMPLETED") {
+      throw new Error("An IN_PROGRESS booking can only be moved to COMPLETED!");
+    }
+  }
+
+  if (currentUser.role === "TECHNICIAN") {
+    const serviceWithTechnician = await prisma.service.findUnique({
+      where: { id: isBookingExist.serviceId },
+      include: { technicianProfile: true },
+    });
+
+    if (serviceWithTechnician?.technicianProfile?.userId !== currentUser.id) {
+      throw new Error(
+        "You are not authorized to manage this booking as this is not your assigned job!",
+      );
+    }
+  }
+
   const result = await prisma.booking.update({
     where: { id },
     data: {
@@ -123,7 +153,6 @@ const updateBookingStatusInDB = async (
 
   return result;
 };
-
 
 const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
   const booking = await prisma.booking.findUnique({
@@ -138,17 +167,23 @@ const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
     throw new Error("You are not authorized to cancel this booking!");
   }
 
-  // State Machine Check
-  // already booking is COMPLETED or CANCELLED, then cannot cancel it again
-  if (booking.status === "COMPLETED") {
-    throw new Error("Cannot cancel a booking that is already COMPLETED!");
-  }
-  
-  if (booking.status === "CANCELLED") {
-    throw new Error("This booking has already been CANCELLED!");
+  const restrictCancelStates = [
+    "PAID",
+    "IN_PROGRESS",
+    "COMPLETED",
+    "DECLINED",
+    "CANCELLED",
+  ];
+
+  if (restrictCancelStates.includes(booking.status)) {
+    if (booking.status === "CANCELLED") {
+      throw new Error("This booking has already been CANCELLED!");
+    }
+    throw new Error(
+      `Cannot cancel a booking that is already ${booking.status}!`,
+    );
   }
 
-  // all checks passed, status will be updated to CANCELLED
   const result = await prisma.booking.update({
     where: { id },
     data: {

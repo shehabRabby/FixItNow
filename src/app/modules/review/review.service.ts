@@ -4,7 +4,6 @@ const createReviewInDB = async (
   customerId: string,
   payload: { bookingId: string; rating: number; comment: string },
 ) => {
-  // if booking exists or not
   const booking = await prisma.booking.findUnique({
     where: { id: payload.bookingId },
     include: {
@@ -16,17 +15,16 @@ const createReviewInDB = async (
     throw new Error("Booking not found!");
   }
 
-  // is it customer's booking or not
+  // check owner of the booking
   if (booking.customerId !== customerId) {
     throw new Error("You are not authorized to review this booking!");
   }
 
-  //is it completed or not
   if (booking.status !== "COMPLETED") {
     throw new Error("You can only review a booking after it is COMPLETED!");
   }
 
-  // check if the customer has already submitted a review for this booking
+  // check duplicate review for the same booking
   const existingReview = await prisma.review.findUnique({
     where: { bookingId: payload.bookingId },
   });
@@ -35,24 +33,45 @@ const createReviewInDB = async (
     throw new Error("You have already submitted a review for this booking!");
   }
 
-  //
   const technicianProfileId = booking.service.technicianProfileId;
   if (!technicianProfileId) {
     throw new Error("No technician is assigned to this service to review!");
   }
 
-  const result = await prisma.review.create({
-    data: {
-      bookingId: payload.bookingId,
-      customerId,
-      technicianProfileId,
-      rating: payload.rating,
-      comment: payload.comment,
-    },
-    include: {
-      customer: true,
-      technicianProfile: true,
-    },
+  const result = await prisma.$transaction(async (tx) => {
+    const newReview = await tx.review.create({
+      data: {
+        bookingId: payload.bookingId,
+        customerId,
+        technicianProfileId,
+        rating: payload.rating,
+        comment: payload.comment,
+      },
+      include: {
+        customer: true,
+        technicianProfile: true,
+      },
+    });
+
+    // average rating calculation and update for the technician profile
+    const aggregation = await tx.review.aggregate({
+      where: { technicianProfileId },
+      _avg: {
+        rating: true,
+      },
+    });
+
+    const newAverageRating = aggregation._avg.rating || 0;
+
+    // update ratingAverage in the technician profile
+    await tx.technicianProfile.update({
+      where: { id: technicianProfileId },
+      data: {
+        ratingAverage: parseFloat(newAverageRating.toFixed(1)),
+      },
+    });
+
+    return newReview;
   });
 
   return result;
@@ -63,18 +82,16 @@ const getAllReviewsFromDB = async (query: {
   technicianProfileId?: string;
 }) => {
   const { customerId, technicianProfileId } = query;
-
   const findConditions: any = {};
 
   if (customerId) {
     findConditions.customerId = customerId;
   }
-
   if (technicianProfileId) {
     findConditions.technicianProfileId = technicianProfileId;
   }
 
-  const result = await prisma.review.findMany({
+  const reviews = await prisma.review.findMany({
     where: findConditions,
     include: {
       customer: {
@@ -90,6 +107,25 @@ const getAllReviewsFromDB = async (query: {
       createdAt: "desc",
     },
   });
+
+  const result = await Promise.all(
+    reviews.map(async (review) => {
+      if (
+        review.technicianProfile &&
+        review.technicianProfile.ratingAverage === 0
+      ) {
+        const agg = await prisma.review.aggregate({
+          where: { technicianProfileId: review.technicianProfileId },
+          _avg: { rating: true },
+        });
+
+        review.technicianProfile.ratingAverage = parseFloat(
+          (agg._avg.rating || 0).toFixed(1),
+        );
+      }
+      return review;
+    }),
+  );
 
   return result;
 };
