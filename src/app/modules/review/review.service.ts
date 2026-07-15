@@ -53,17 +53,18 @@ const createReviewInDB = async (
       },
     });
 
-    // average rating calculation and update for the technician profile
-    const aggregation = await tx.review.aggregate({
+    const existingReviews = await tx.review.findMany({
       where: { technicianProfileId },
-      _avg: {
-        rating: true,
-      },
+      select: { rating: true },
     });
 
-    const newAverageRating = aggregation._avg.rating || 0;
+    const totalRating = existingReviews.reduce(
+      (sum, item) => sum + item.rating,
+      0,
+    );
+    const newAverageRating = totalRating / existingReviews.length;
 
-    // update ratingAverage in the technician profile
+    // update technician profile
     await tx.technicianProfile.update({
       where: { id: technicianProfileId },
       data: {
@@ -108,26 +109,7 @@ const getAllReviewsFromDB = async (query: {
     },
   });
 
-  const result = await Promise.all(
-    reviews.map(async (review) => {
-      if (
-        review.technicianProfile &&
-        review.technicianProfile.ratingAverage === 0
-      ) {
-        const agg = await prisma.review.aggregate({
-          where: { technicianProfileId: review.technicianProfileId },
-          _avg: { rating: true },
-        });
-
-        review.technicianProfile.ratingAverage = parseFloat(
-          (agg._avg.rating || 0).toFixed(1),
-        );
-      }
-      return review;
-    }),
-  );
-
-  return result;
+  return reviews;
 };
 
 export const ReviewService = {

@@ -16,7 +16,17 @@ const updateUserRoleValidationSchema = z.object({
   }),
 });
 
+const createCategoryValidationSchema = z.object({
+  body: z.object({
+    name: z.string({
+      message: "Category name is required",
+    }),
+    description: z.string().optional(),
+  }),
+});
+
 export const AdminValidation = {
   updateUserStatusValidationSchema,
   updateUserRoleValidationSchema,
+  createCategoryValidationSchema
 };

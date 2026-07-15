@@ -9,7 +9,7 @@ const createPaymentIntent = catchAsync(async (req: Request, res: Response) => {
 
   const result = await PaymentService.createPaymentIntentInDB(
     customerId,
-    bookingData
+    bookingData,
   );
 
   res.status(httpStatus.CREATED).json({
@@ -25,7 +25,7 @@ const confirmPayment = catchAsync(async (req: Request, res: Response) => {
 
   const result = await PaymentService.confirmPaymentInDB(
     customerId,
-    paymentConfirmData
+    paymentConfirmData,
   );
 
   res.status(httpStatus.OK).json({
@@ -35,7 +35,21 @@ const confirmPayment = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getPaymentHistory = catchAsync(async (req: Request, res: Response) => {
+  const userId = req.user?.id as string;
+  const role = req.user?.role as string;
+
+  const result = await PaymentService.getPaymentHistoryFromDB(userId, role);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Payment history fetched successfully!",
+    data: result,
+  });
+});
+
 export const PaymentController = {
   createPaymentIntent,
-    confirmPayment,
+  confirmPayment,
+  getPaymentHistory,
 };

@@ -1,7 +1,7 @@
 model Category {
   id          String    @id @default(uuid()) @db.Uuid
   name        String    @unique
-  description String    @db.Text
+  description String?    @db.Text
   slug        String    @unique
   services    Service[]
 

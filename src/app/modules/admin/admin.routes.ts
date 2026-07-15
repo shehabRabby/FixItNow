@@ -7,6 +7,8 @@ import { AdminValidation } from "./admin.validation";
 const router = express.Router();
 
 router.get("/overview", auth("ADMIN"), AdminController.getDashboardOverview);
+router.get("/users", auth("ADMIN"), AdminController.getAllUsers);
+router.get("/bookings", auth("ADMIN"), AdminController.getAllBookings);
 
 router.patch(
   "/users/:id/status",
@@ -21,5 +23,12 @@ router.patch(
   validateRequest(AdminValidation.updateUserRoleValidationSchema),
   AdminController.updateUserRole,
 );
+router.post(
+  "/categories",
+  auth("ADMIN"),
+  validateRequest(AdminValidation.createCategoryValidationSchema),
+  AdminController.createCategory,
+);
+router.get("/categories", AdminController.getAllCategories);
 
 export const AdminRoutes = router;

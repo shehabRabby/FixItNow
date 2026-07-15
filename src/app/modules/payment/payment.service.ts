@@ -54,7 +54,6 @@ const createPaymentIntentInDB = async (
 
   const transactionId = paymentIntent.id;
 
-  // if payment record already exists, update it; otherwise, create a new one
   const paymentData = await prisma.payment.upsert({
     where: { bookingId: booking.id },
     update: {
@@ -93,15 +92,28 @@ const confirmPaymentInDB = async (
     throw new Error("Payment record not found for this booking!");
   }
 
-  // check owner of the booking
+  // ১. অথরাইজেশন চেক
   if (payment.booking.customerId !== customerId) {
     throw new Error(
       "You are not authorized to confirm payment for this booking!",
     );
   }
 
+  // ২. ডাবল-পেমেন্ট প্রিভেনশন চেক
   if (payment.status === PaymentStatus.COMPLETED) {
     throw new Error("This payment is already confirmed and completed!");
+  }
+
+  // ৩. কারেন্ট বুকিং স্ট্যাটাস ভ্যালিডেশন
+  if (payment.booking.status !== "ACCEPTED") {
+    throw new Error(
+      `Cannot pay for this booking because the booking is currently ${payment.booking.status}!`,
+    );
+  }
+
+  // ৪. সিকিউরিটি চেক: ডাটাবেজের ট্রানজেকশন আইডির সাথে ফ্রন্টএন্ডের ট্রানজেকশন আইডি ম্যাচিং
+  if (payment.transactionId !== transactionId) {
+    throw new Error("Invalid transaction verification failed!");
   }
 
   const result = await prisma.$transaction(async (tx) => {
@@ -109,7 +121,6 @@ const confirmPaymentInDB = async (
       where: { bookingId },
       data: {
         status: PaymentStatus.COMPLETED,
-        transactionId: transactionId, // record the transaction ID from Stripe
         paidAt: new Date(),
       },
     });
@@ -127,7 +138,39 @@ const confirmPaymentInDB = async (
   return result;
 };
 
+const getPaymentHistoryFromDB = async (userId: string, role: string) => {
+  if (role === "ADMIN") {
+    return await prisma.payment.findMany({
+      include: { booking: { include: { service: true } } },
+    });
+  }
+  if (role === "TECHNICIAN") {
+    return await prisma.payment.findMany({
+      where: {
+        booking: {
+          service: {
+            technicianProfile: {
+              userId,
+            },
+          },
+        },
+      },
+      include: { booking: { include: { service: true } } },
+    });
+  }
+
+  return await prisma.payment.findMany({
+    where: {
+      booking: {
+        customerId: userId,
+      },
+    },
+    include: { booking: { include: { service: true } } },
+  });
+};
+
 export const PaymentService = {
   createPaymentIntentInDB,
   confirmPaymentInDB,
+  getPaymentHistoryFromDB,
 };

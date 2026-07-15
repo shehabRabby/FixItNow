@@ -9,8 +9,8 @@ const createUserValidationSchema = z.object({
     password: z
       .string({ message: "Password is required" })
       .min(6, "Password must be at least 6 characters"),
-    role: z.enum(["CUSTOMER", "TECHNICIAN", "ADMIN"] as const, {
-      message: "Role is required and must be CUSTOMER, TECHNICIAN, or ADMIN",
+    role: z.enum(["CUSTOMER", "TECHNICIAN"] as const, {
+      message: "Role is required and must be either CUSTOMER or TECHNICIAN",
     }),
   }),
 });

@@ -20,4 +20,10 @@ router.post(
   PaymentController.confirmPayment,
 );
 
+router.get(
+  "/history",
+  auth("CUSTOMER", "ADMIN"),
+  PaymentController.getPaymentHistory,
+);
+
 export const PaymentRoutes = router;

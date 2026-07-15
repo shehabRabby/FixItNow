@@ -12,10 +12,12 @@ const loginUser = async (payload: any) => {
     throw new Error("User does not exist with this email address!");
   }
 
+  // account check
   if (user.status === "BANNED") {
     throw new Error("This account has been banned by an administrator!");
   }
 
+  // pass check
   const isPasswordMatched = await bcryptjs.compare(
     payload.password,
     user.password,
@@ -31,6 +33,7 @@ const loginUser = async (payload: any) => {
     role: user.role,
   };
 
+  // JWT generator
   const accessToken = jwt.sign(jwtPayload, config.jwt_access_secret as string, {
     expiresIn: config.jwt_access_expiration as SignOptions["expiresIn"],
   });
@@ -41,10 +44,18 @@ const loginUser = async (payload: any) => {
     { expiresIn: config.jwt_refresh_expiration as SignOptions["expiresIn"] },
   );
 
-  const { password, ...userData } = user;
+  const responseUser = {
+    id: user.id,
+    name: user.name,
+    email: user.email,
+    role: user.role,
+    status: user.status,
+    createdAt: user.createdAt,
+    updatedAt: user.updatedAt,
+  };
 
   return {
-    user: userData,
+    user: responseUser,
     accessToken,
     refreshToken,
   };

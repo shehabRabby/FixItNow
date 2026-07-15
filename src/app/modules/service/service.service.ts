@@ -166,13 +166,28 @@ const getSingleServiceFromDB = async (id: string) => {
   return result;
 };
 
-const deleteServiceFromDB = async (id: string) => {
+const deleteServiceFromDB = async (id: string, userId: string) => {
+  const service = await prisma.service.findUnique({
+    where: { id },
+    include: { technicianProfile: true },
+  });
+
+  if (!service) {
+    throw new Error("Service not found!");
+  }
+
+  if (service.technicianProfile.userId !== userId) {
+    throw new Error(
+      "Forbidden! You can only delete your own created services.",
+    );
+  }
+
   const result = await prisma.service.delete({
     where: { id },
   });
+
   return result;
 };
-
 export const ServiceService = {
   createServiceInDB,
   getAllServicesFromDB,

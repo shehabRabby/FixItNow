@@ -33,9 +33,9 @@ const createUserIntoDB = async (payload: any) => {
         data: {
           userId: newUser.id,
           skills: "",
-          experienceYears: 0, 
+          experienceYears: 0,
           bio: "",
-          availabilitySlots: "", 
+          availabilitySlots: "",
         },
       });
     }

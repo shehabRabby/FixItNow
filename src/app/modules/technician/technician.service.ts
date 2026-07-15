@@ -1,5 +1,12 @@
 import { prisma } from "../../../lib/prisma";
 
+const formatSlotsToArray = (
+  slotsString: string | null | undefined,
+): string[] => {
+  if (!slotsString) return [];
+  return slotsString.split(", ").filter(Boolean);
+};
+
 const getTechnicianProfileFromDB = async (userId: string) => {
   let result = await prisma.technicianProfile.findUnique({
     where: { userId },
@@ -14,7 +21,7 @@ const getTechnicianProfileFromDB = async (userId: string) => {
     const userExists = await prisma.user.findUnique({ where: { id: userId } });
 
     if (userExists && userExists.role === "TECHNICIAN") {
-      await prisma.technicianProfile.create({
+      result = await prisma.technicianProfile.create({
         data: {
           userId,
           skills: "",
@@ -22,10 +29,6 @@ const getTechnicianProfileFromDB = async (userId: string) => {
           bio: "",
           availabilitySlots: "",
         },
-      });
-
-      result = await prisma.technicianProfile.findUnique({
-        where: { userId },
         include: {
           user: {
             select: {
@@ -43,32 +46,51 @@ const getTechnicianProfileFromDB = async (userId: string) => {
     }
   }
 
-  return result;
+  return {
+    ...result,
+    availabilitySlots: formatSlotsToArray(result.availabilitySlots),
+  };
 };
 
 const updateTechnicianProfileInDB = async (userId: string, payload: any) => {
-  const formattedSkills = Array.isArray(payload.skills)
-    ? payload.skills.join(", ")
-    : payload.skills;
+  const updateData: any = {};
+
+  if (payload.skills !== undefined) {
+    updateData.skills = Array.isArray(payload.skills)
+      ? payload.skills.join(", ")
+      : payload.skills;
+  }
+
+  if (payload.experienceYears !== undefined) {
+    updateData.experienceYears = payload.experienceYears;
+  }
+
+  if (payload.bio !== undefined) {
+    updateData.bio = payload.bio;
+  }
+
+  if (payload.availabilitySlots !== undefined) {
+    updateData.availabilitySlots = Array.isArray(payload.availabilitySlots)
+      ? payload.availabilitySlots.join(", ")
+      : payload.availabilitySlots;
+  }
 
   const result = await prisma.technicianProfile.upsert({
     where: { userId },
-    update: {
-      skills: formattedSkills ?? payload.skills,
-      experienceYears: payload.experienceYears,
-      bio: payload.bio,
-      availabilitySlots: payload.availabilitySlots,
-    },
+    update: updateData,
     create: {
       userId,
-      skills: formattedSkills || "",
-      experienceYears: payload.experienceYears || 0,
-      bio: payload.bio || "",
-      availabilitySlots: payload.availabilitySlots || "",
+      skills: updateData.skills || "",
+      experienceYears: updateData.experienceYears || 0,
+      bio: updateData.bio || "",
+      availabilitySlots: updateData.availabilitySlots || "",
     },
   });
 
-  return result;
+  return {
+    ...result,
+    availabilitySlots: formatSlotsToArray(result.availabilitySlots),
+  };
 };
 
 const updateAvailabilitySlotsInDB = async (
@@ -93,9 +115,7 @@ const updateAvailabilitySlotsInDB = async (
 
   return {
     ...result,
-    availabilitySlots: result.availabilitySlots
-      ? result.availabilitySlots.split(", ")
-      : [],
+    availabilitySlots: formatSlotsToArray(result.availabilitySlots),
   };
 };
 

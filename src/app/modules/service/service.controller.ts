@@ -79,7 +79,10 @@ const getSingleService = catchAsync(async (req: Request, res: Response) => {
 
 const deleteService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
-  await ServiceService.deleteServiceFromDB(id);
+  const userId = req.user?.id as string; // টেকনিশিয়ানের আইডি নিচ্ছি
+
+  await ServiceService.deleteServiceFromDB(id, userId);
+  
   res.status(httpStatus.OK).json({
     success: true,
     message: "Service deleted successfully!",

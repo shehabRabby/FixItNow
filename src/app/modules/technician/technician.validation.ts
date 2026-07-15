@@ -21,9 +21,11 @@ const updateTechnicianValidationSchema = z.object({
       .max(500, "Bio cannot be more than 500 characters")
       .optional(),
     availabilitySlots: z
-      .string({
-        message: "Availability slots must be a string",
-      })
+      .array(
+        z.string({
+          message: "Each time slot must be a valid string",
+        }),
+      )
       .optional(),
   }),
 });

@@ -30,24 +30,27 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
     payload;
 
   const result = await prisma.$transaction(async (tx) => {
-    const updatedUser = await tx.user.update({
+    await tx.user.update({
       where: { id: userId },
       data: userData,
     });
 
-    if (
-      user.role === "TECHNICIAN" &&
-      (skills || experienceYears || bio || availabilitySlots)
-    ) {
+    if (user.role === "TECHNICIAN") {
+      const formattedSkills = Array.isArray(skills) ? skills.join(",") : skills;
+
+      const formattedSlots = Array.isArray(availabilitySlots)
+        ? availabilitySlots.join(",")
+        : availabilitySlots;
+
       await tx.technicianProfile.update({
         where: { userId: userId },
         data: {
-          skills,
+          skills: formattedSkills,
           experienceYears: experienceYears
             ? Number(experienceYears)
             : undefined,
           bio,
-          availabilitySlots,
+          availabilitySlots: formattedSlots,
         },
       });
     }
@@ -88,14 +91,13 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
   }
 
   if (role === "TECHNICIAN") {
-    // technician total jobs assigned, completed jobs, total earning, average rating
     const technicianProfile = await prisma.technicianProfile.findUnique({
       where: { userId },
     });
 
     if (!technicianProfile) {
       throw new Error(
-        "Technician profile has not been created yet. Please complete your profile setup.",
+        "Technician profile not found. Please complete your profile setup.",
       );
     }
 
@@ -110,7 +112,6 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
       },
     });
 
-    // only compeleted job count
     const totalEarningAgg = await prisma.payment.aggregate({
       where: {
         booking: { service: { technicianProfileId: technicianProfile.id } },

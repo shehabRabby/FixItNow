@@ -2,7 +2,7 @@ import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { AdminService } from "./admin.service";
 import catchAsync from "../../utils/catchAsync";
-import { UserRole, UserStatus } from "../../../../generated/prisma/client";
+import { UserRole, UserStatus } from "../../../../generated/prisma/enums";
 
 const getDashboardOverview = catchAsync(async (req: Request, res: Response) => {
   const result = await AdminService.getDashboardOverviewFromDB();
@@ -14,10 +14,49 @@ const getDashboardOverview = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getAllUsers = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.getAllUsersFromDB();
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Users retrieved successfully!",
+    data: result,
+  });
+});
+
+const getAllBookings = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.getAllBookingsFromDB();
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "All bookings retrieved successfully!",
+    data: result,
+  });
+});
+
+const createCategory = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.createCategoryInDB(req.body);
+  res.status(httpStatus.CREATED).json({
+    success: true,
+    message: "Category created successfully!",
+    data: result,
+  });
+});
+
+const getAllCategories = catchAsync(async (req: Request, res: Response) => {
+  const result = await AdminService.getAllCategoriesFromDB();
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Categories retrieved successfully!",
+    data: result,
+  });
+});
+
 const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
+  const adminId = req.user?.id as string;
   const id = req.params.id as string;
   const status = req.body.status as UserStatus;
-  const result = await AdminService.updateUserStatusInDB(id, status);
+
+  // adminId pass
+  const result = await AdminService.updateUserStatusInDB(adminId, id, status);
 
   res.status(httpStatus.OK).json({
     success: true,
@@ -27,9 +66,12 @@ const updateUserStatus = catchAsync(async (req: Request, res: Response) => {
 });
 
 const updateUserRole = catchAsync(async (req: Request, res: Response) => {
+  const adminId = req.user?.id as string;
   const id = req.params.id as string;
   const role = req.body.role as UserRole;
-  const result = await AdminService.updateUserRoleInDB(id, role);
+
+  // adminId pass
+  const result = await AdminService.updateUserRoleInDB(adminId, id, role);
 
   res.status(httpStatus.OK).json({
     success: true,
@@ -37,8 +79,13 @@ const updateUserRole = catchAsync(async (req: Request, res: Response) => {
     data: result,
   });
 });
+
 export const AdminController = {
   getDashboardOverview,
   updateUserStatus,
   updateUserRole,
+  getAllUsers,
+  getAllBookings,
+  createCategory,
+  getAllCategories,
 };

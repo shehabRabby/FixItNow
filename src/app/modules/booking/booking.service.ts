@@ -43,7 +43,6 @@ const getSingleBookingFromDB = async (id: string, currentUser: any) => {
     throw new Error("Booking not found!");
   }
 
-  // only the customer who made the booking, the assigned technician, or an admin can view the booking details
   const isOwner = result.customerId === currentUser.id;
   const isAssignedTechnician =
     result.service.technicianProfile?.userId === currentUser.id;
@@ -65,7 +64,6 @@ const getAllBookingsFromDB = async (userId: string, role: string) => {
       include: { service: true, payment: true, review: true },
     });
   } else if (role === "TECHNICIAN") {
-    // only technician can see bookings related to their services
     result = await prisma.booking.findMany({
       where: {
         service: {
@@ -75,7 +73,6 @@ const getAllBookingsFromDB = async (userId: string, role: string) => {
       include: { service: true, payment: true, review: true },
     });
   } else {
-    // Only admin can see all bookings
     result = await prisma.booking.findMany({
       include: { service: true, payment: true, review: true },
     });
@@ -91,22 +88,31 @@ const updateBookingStatusInDB = async (
 ) => {
   const isBookingExist = await prisma.booking.findUnique({
     where: { id },
+    include: { service: { include: { technicianProfile: true } } },
   });
 
   if (!isBookingExist) {
     throw new Error("Booking not found!");
   }
 
+  // check security
+  if (currentUser.role === "TECHNICIAN") {
+    if (isBookingExist.service.technicianProfile?.userId !== currentUser.id) {
+      throw new Error(
+        "You are not authorized to manage this booking as this is not your assigned job!",
+      );
+    }
+  }
+
   const validatedStatus = BookingStatus[status as keyof typeof BookingStatus];
   if (!validatedStatus) {
     throw new Error(
-      `Invalid status value provided! Expected one of: ${Object.keys(BookingStatus).join(", ")}`,
+      `Invalid status value! Expected: ${Object.keys(BookingStatus).join(", ")}`,
     );
   }
 
   const currentStatus = isBookingExist.status;
 
-  // if the booking is already in a terminal state, it cannot be updated further
   if (
     currentStatus === "COMPLETED" ||
     currentStatus === "CANCELLED" ||
@@ -124,7 +130,6 @@ const updateBookingStatusInDB = async (
       );
     }
   } else if (currentStatus === "ACCEPTED") {
-    // if Accepted, it must be PAID before moving to next status
     if (validatedStatus !== "PAID") {
       throw new Error(
         "An ACCEPTED booking must be PAID before processing further!",
@@ -137,19 +142,6 @@ const updateBookingStatusInDB = async (
   } else if (currentStatus === "IN_PROGRESS") {
     if (validatedStatus !== "COMPLETED") {
       throw new Error("An IN_PROGRESS booking can only be moved to COMPLETED!");
-    }
-  }
-
-  if (currentUser.role === "TECHNICIAN") {
-    const serviceWithTechnician = await prisma.service.findUnique({
-      where: { id: isBookingExist.serviceId },
-      include: { technicianProfile: true },
-    });
-
-    if (serviceWithTechnician?.technicianProfile?.userId !== currentUser.id) {
-      throw new Error(
-        "You are not authorized to manage this booking as this is not your assigned job!",
-      );
     }
   }
 
@@ -177,8 +169,8 @@ const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
     throw new Error("You are not authorized to cancel this booking!");
   }
 
-  // only cancel before the booking is in progress, completed, declined, or already cancelled
   const restrictCancelStates = [
+    "PAID",
     "IN_PROGRESS",
     "COMPLETED",
     "DECLINED",
@@ -188,6 +180,11 @@ const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
   if (restrictCancelStates.includes(booking.status)) {
     if (booking.status === "CANCELLED") {
       throw new Error("This booking has already been CANCELLED!");
+    }
+    if (booking.status === "PAID") {
+      throw new Error(
+        "This booking is already PAID. Please contact support/admin for cancellation & refund!",
+      );
     }
     throw new Error(
       `Cannot cancel a booking that is already ${booking.status}!`,
