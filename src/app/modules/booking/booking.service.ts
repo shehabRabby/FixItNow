@@ -32,14 +32,24 @@ const createBookingInDB = async (
 const getSingleBookingFromDB = async (id: string, currentUser: any) => {
   const result = await prisma.booking.findUnique({
     where: { id },
+    include: {
+      service: { include: { technicianProfile: true } },
+      payment: true,
+      review: true,
+    },
   });
 
   if (!result) {
     throw new Error("Booking not found!");
   }
 
-  // if the current user is not an admin and is not the owner of the booking, throw an error
-  if (currentUser.role !== "ADMIN" && result.customerId !== currentUser.id) {
+  // only the customer who made the booking, the assigned technician, or an admin can view the booking details
+  const isOwner = result.customerId === currentUser.id;
+  const isAssignedTechnician =
+    result.service.technicianProfile?.userId === currentUser.id;
+  const isAdmin = currentUser.role === "ADMIN";
+
+  if (!isOwner && !isAssignedTechnician && !isAdmin) {
     throw new Error("You are not authorized to view this booking!");
   }
 
@@ -167,8 +177,8 @@ const cancelBookingByCustomerInDB = async (id: string, customerId: string) => {
     throw new Error("You are not authorized to cancel this booking!");
   }
 
+  // only cancel before the booking is in progress, completed, declined, or already cancelled
   const restrictCancelStates = [
-    "PAID",
     "IN_PROGRESS",
     "COMPLETED",
     "DECLINED",

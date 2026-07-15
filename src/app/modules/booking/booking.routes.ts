@@ -16,8 +16,14 @@ router.post(
 // only customer and technician can see bookings
 router.get(
   "/",
-  auth("CUSTOMER", "TECHNICIAN"),
+  auth("CUSTOMER", "TECHNICIAN", "ADMIN"),
   BookingController.getAllBookings,
+);
+
+router.get(
+  "/:id",
+  auth("CUSTOMER", "TECHNICIAN", "ADMIN"),
+  BookingController.getSingleBooking,
 );
 
 router.patch(

@@ -32,6 +32,19 @@ const getAllBookings = catchAsync(async (req: Request, res: Response) => {
   });
 });
 
+const getSingleBooking = catchAsync(async (req: Request, res: Response) => {
+  const id = req.params.id as string;
+  const currentUser = req.user;
+
+  const result = await BookingService.getSingleBookingFromDB(id, currentUser);
+
+  res.status(httpStatus.OK).json({
+    success: true,
+    message: "Booking fetched successfully!",
+    data: result,
+  });
+});
+
 const updateBookingStatus = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const { status } = req.body;
@@ -68,6 +81,7 @@ const cancelBooking = catchAsync(async (req: Request, res: Response) => {
 export const BookingController = {
   createBooking,
   getAllBookings,
+  getSingleBooking,
   updateBookingStatus,
   cancelBooking,
 };
