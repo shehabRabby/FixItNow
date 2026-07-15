@@ -24,25 +24,6 @@ const loginUser = async (payload: any) => {
     throw new Error("Incorrect password! Please try again.");
   }
 
-  if (user.role === "TECHNICIAN") {
-    const existingProfile = await prisma.technicianProfile.findUnique({
-      where: { userId: user.id },
-    });
-
-    if (!existingProfile) {
-      await prisma.technicianProfile.create({
-        data: {
-          userId: user.id,
-          ratingAverage: 0,
-          skills: "",
-          bio: "",
-          availabilitySlots: "",
-          experienceYears: 0,
-        },
-      });
-    }
-  }
-
   const jwtPayload = {
     id: user.id,
     name: user.name,

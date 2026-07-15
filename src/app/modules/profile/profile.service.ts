@@ -65,8 +65,6 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
   return updatedData;
 };
 
-
-
 const getDashboardOverviewFromDB = async (userId: string, role: string) => {
   if (role === "CUSTOMER") {
     const totalBookings = await prisma.booking.count({
@@ -74,7 +72,7 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
     });
 
     const pendingPayments = await prisma.booking.count({
-      where: { customerId: userId, status: "ACCEPTED" }, 
+      where: { customerId: userId, status: "ACCEPTED" },
     });
 
     const completedJobs = await prisma.booking.count({
@@ -96,7 +94,9 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
     });
 
     if (!technicianProfile) {
-      throw new Error("Technician profile not found!");
+      throw new Error(
+        "Technician profile has not been created yet. Please complete your profile setup.",
+      );
     }
 
     const totalJobsAssigned = await prisma.booking.count({
@@ -104,9 +104,9 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
     });
 
     const completedJobs = await prisma.booking.count({
-      where: { 
+      where: {
         service: { technicianProfileId: technicianProfile.id },
-        status: "COMPLETED"
+        status: "COMPLETED",
       },
     });
 
@@ -131,10 +131,14 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
   }
 
   if (role === "ADMIN") {
-    const totalCustomers = await prisma.user.count({ where: { role: "CUSTOMER" } });
-    const totalTechnicians = await prisma.user.count({ where: { role: "TECHNICIAN" } });
+    const totalCustomers = await prisma.user.count({
+      where: { role: "CUSTOMER" },
+    });
+    const totalTechnicians = await prisma.user.count({
+      where: { role: "TECHNICIAN" },
+    });
     const totalServices = await prisma.service.count();
-    
+
     const totalRevenueAgg = await prisma.payment.aggregate({
       where: { status: "COMPLETED" },
       _sum: { amount: true },
@@ -151,7 +155,6 @@ const getDashboardOverviewFromDB = async (userId: string, role: string) => {
 
   throw new Error("Invalid user role!");
 };
-
 
 export const ProfileService = {
   getMyProfileFromDB,
