@@ -25,4 +25,42 @@ const createCategoryInDB = async (payload: {
   return result;
 };
 
-export const CategoryService = { createCategoryInDB };
+const getAllCategoriesFromDB = async () => {
+  const result = await prisma.category.findMany();
+  return result;
+};
+
+const deleteCategoryFromDB = async (id: string) => {
+  const result = await prisma.category.delete({
+    where: {
+      id,
+    },
+  });
+  return result;
+};
+
+const getSingleCategoryFromDB = async (id: string) => {
+  const result = await prisma.category.findUnique({
+    where: { id },
+  });
+  return result;
+};
+
+const updateCategoryInDB = async (
+  id: string,
+  payload: { name?: string; slug?: string; description?: string },
+) => {
+  const result = await prisma.category.update({
+    where: { id },
+    data: payload,
+  });
+  return result;
+};
+
+export const CategoryService = {
+  createCategoryInDB,
+  getAllCategoriesFromDB,
+  deleteCategoryFromDB,
+  getSingleCategoryFromDB,
+  updateCategoryInDB,
+};
