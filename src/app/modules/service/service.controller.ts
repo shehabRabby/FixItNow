@@ -17,11 +17,53 @@ const createService = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllServices = catchAsync(async (req: Request, res: Response) => {
-  const result = await ServiceService.getAllServicesFromDB();
+  const filters = {
+    searchTerm: req.query.searchTerm as string,
+    categoryId: req.query.categoryId as string,
+    minPrice: req.query.minPrice as string,
+    maxPrice: req.query.maxPrice as string,
+    location: req.query.location as string,
+  };
+
+  // Safely parse pagination boundaries before applying defaults
+  const requestedPage =
+    req.query.page !== undefined ? Number(req.query.page) : undefined;
+  const limit = Number(req.query.limit) || 10;
+
+  if (requestedPage !== undefined && requestedPage <= 0) {
+    return res.status(httpStatus.OK).json({
+      success: true,
+      message: "Invalid page number. Page must be 1 or greater.",
+      meta: {
+        page: requestedPage,
+        limit: limit,
+        total: 0,
+        totalPage: 0,
+      },
+      data: [],
+    });
+  }
+
+  const paginationOptions = {
+    page: requestedPage || 1,
+    limit: limit,
+    sortBy: (req.query.sortBy as string) || "id",
+    sortOrder: (req.query.sortOrder as string) || "desc",
+  };
+
+  const result = await ServiceService.getAllServicesFromDB(
+    filters,
+    paginationOptions,
+  );
+
+  const responseMessage =
+    (result as any).message || "Services fetched successfully!";
+
   res.status(httpStatus.OK).json({
     success: true,
-    message: "Services fetched successfully!",
-    data: result,
+    message: responseMessage,
+    meta: result.meta,
+    data: result.data,
   });
 });
 
@@ -44,7 +86,6 @@ const deleteService = catchAsync(async (req: Request, res: Response) => {
     data: null,
   });
 });
-
 
 export const ServiceController = {
   createService,
