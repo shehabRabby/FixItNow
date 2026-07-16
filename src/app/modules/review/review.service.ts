@@ -53,18 +53,14 @@ const createReviewInDB = async (
       },
     });
 
-    const existingReviews = await tx.review.findMany({
+    const aggregations = await tx.review.aggregate({
       where: { technicianProfileId },
-      select: { rating: true },
+      _avg: {
+        rating: true, 
+      },
     });
 
-    const totalRating = existingReviews.reduce(
-      (sum, item) => sum + item.rating,
-      0,
-    );
-    const newAverageRating = totalRating / existingReviews.length;
-
-    // update technician profile
+    const newAverageRating = aggregations._avg.rating || payload.rating;
     await tx.technicianProfile.update({
       where: { id: technicianProfileId },
       data: {
