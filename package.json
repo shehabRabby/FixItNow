@@ -19,7 +19,7 @@
     "dev": "tsx watch src/server.ts",
     "build": "prisma generate",
     "start": "tsx src/server.ts",
-    "vercel-build": "prisma generate"
+    "vercel-build": "echo 'Skipping Vercel Prisma build'"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
