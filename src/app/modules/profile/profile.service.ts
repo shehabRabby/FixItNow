@@ -11,8 +11,12 @@ const getMyProfileFromDB = async (userId: string) => {
   if (!result) {
     throw new Error("User profile not found!");
   }
-  const profileData = result as Record<string, any>;
+  const profileData = JSON.parse(JSON.stringify(result));
   delete profileData.password;
+
+  if (profileData.role !== "TECHNICIAN") {
+    delete profileData.technicianProfile;
+  }
 
   return profileData;
 };
@@ -46,7 +50,7 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
         where: { userId: userId },
         data: {
           skills: formattedSkills,
-          experienceYears: experienceYears 
+          experienceYears: experienceYears
             ? Number(experienceYears)
             : undefined,
           bio,
@@ -65,6 +69,11 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
 
   const updatedData = JSON.parse(JSON.stringify(result));
   delete updatedData.password;
+
+  if (updatedData.role !== "TECHNICIAN") {
+    delete updatedData.technicianProfile;
+  }
+
   return updatedData;
 };
 

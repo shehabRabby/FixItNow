@@ -2,32 +2,31 @@ import { UserRole, UserStatus } from "../../../../generated/prisma/enums";
 import { prisma } from "../../../lib/prisma";
 
 const getDashboardOverviewFromDB = async () => {
-  const [totalUsers, totalBookings, bookingsGroupedByStatus, totalServices] =
-    await Promise.all([
-      // total register user
-      prisma.user.count(),
-
-      // total booking
-      prisma.booking.count(),
-
-      // booking by status
-      prisma.booking.groupBy({
-        by: ["status"],
-        _count: true,
-      }),
-
-      // total service
-      prisma.service.count(),
-    ]);
-
-  const completedBookings = await prisma.booking.findMany({
-    where: { status: "COMPLETED" },
-    select: {
-      service: {
-        select: { price: true },
+  const [
+    totalUsers,
+    totalBookings,
+    bookingsGroupedByStatus,
+    totalServices,
+    completedBookings,
+  ] = await Promise.all([
+    prisma.user.count(),
+    prisma.booking.count(),
+    prisma.booking.groupBy({
+      by: ["status"],
+      _count: true,
+    }),
+    prisma.service.count(),
+    prisma.booking.findMany({
+      where: { status: "COMPLETED" },
+      select: {
+        service: {
+          select: {
+            price: true,
+          },
+        },
       },
-    },
-  });
+    }),
+  ]);
 
   const totalRevenue = completedBookings.reduce(
     (sum, booking) => sum + (booking.service?.price || 0),
@@ -50,7 +49,6 @@ const getDashboardOverviewFromDB = async () => {
     bookingStatusOverview,
   };
 };
-
 const getAllUsersFromDB = async () => {
   return await prisma.user.findMany({
     select: {
@@ -173,25 +171,35 @@ const updateUserRoleInDB = async (
     throw new Error("User not found!");
   }
 
-  if (isUserExist.status === UserStatus.BANNED) {
+  if (isUserExist.status === "BANNED") {
     throw new Error(
       "Cannot change the role of a BANNED user! Unban them first.",
     );
   }
 
-  const result = await prisma.user.update({
-    where: { id },
-    data: { role },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      status: true,
-    },
-  });
+  return await prisma.$transaction(async (tx) => {
+    const updatedUser = await tx.user.update({
+      where: { id },
+      data: { role },
+      select: { id: true, name: true, email: true, role: true, status: true },
+    });
 
-  return result;
+    if (role === "TECHNICIAN") {
+      await tx.technicianProfile.upsert({
+        where: { userId: id },
+        update: {},
+        create: {
+          userId: id,
+          skills: "",
+          experienceYears: 0,
+          bio: "",
+          availabilitySlots: "",
+        },
+      });
+    }
+
+    return updatedUser;
+  });
 };
 
 export const AdminService = {
