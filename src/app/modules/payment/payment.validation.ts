@@ -15,11 +15,12 @@ const createPaymentIntentValidationSchema = z.object({
 const confirmPaymentValidationSchema = z.object({
   body: z.object({
     bookingId: z
-      .string({ message: "Booking ID is required" })
+      .string({ error: "Booking ID is required" })
       .uuid({ message: "Invalid Booking ID format" }),
-    transactionId: z.string({
-      message: "Transaction ID is required from Stripe",
-    }),
+    transactionId: z
+      .string({ error: "Transaction ID is required from Stripe" })
+      .trim()
+      .min(1, { message: "Transaction ID cannot be empty" }),
   }),
 });
 

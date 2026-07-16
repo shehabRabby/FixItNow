@@ -21,8 +21,8 @@ router.post(
 );
 
 router.get(
-  "/history",
-  auth("CUSTOMER", "ADMIN"),
+  "/payment-history",
+  auth("CUSTOMER", "ADMIN","TECHNICIAN"),
   PaymentController.getPaymentHistory,
 );
 
