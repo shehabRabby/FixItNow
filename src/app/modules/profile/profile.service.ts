@@ -46,7 +46,7 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
         where: { userId: userId },
         data: {
           skills: formattedSkills,
-          experienceYears: experienceYears
+          experienceYears: experienceYears 
             ? Number(experienceYears)
             : undefined,
           bio,
@@ -63,7 +63,7 @@ const updateMyProfileInDB = async (userId: string, payload: Partial<any>) => {
     });
   });
 
-  const updatedData = result as Record<string, any>;
+  const updatedData = JSON.parse(JSON.stringify(result));
   delete updatedData.password;
   return updatedData;
 };
