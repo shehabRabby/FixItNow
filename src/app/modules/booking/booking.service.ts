@@ -148,7 +148,7 @@ const updateBookingStatusInDB = async (
   const result = await prisma.booking.update({
     where: { id },
     data: {
-      status: validatedStatus,
+      status: status as any,
     },
     include: { service: true },
   });

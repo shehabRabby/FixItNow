@@ -25,9 +25,14 @@ const getAllBookings = catchAsync(async (req: Request, res: Response) => {
 
   const result = await BookingService.getAllBookingsFromDB(userId, role);
 
+  const message =
+    result && result.length > 0
+      ? "Bookings fetched successfully!"
+      : "No bookings found!";
+
   res.status(httpStatus.OK).json({
     success: true,
-    message: "Bookings fetched successfully!",
+    message,
     data: result,
   });
 });
