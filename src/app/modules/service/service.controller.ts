@@ -2,6 +2,7 @@ import { Request, Response } from "express";
 import httpStatus from "http-status";
 import { ServiceService } from "./service.service";
 import catchAsync from "../../utils/catchAsync";
+import sendResponse from "../../utils/sendResponse";
 
 const createService = catchAsync(async (req: Request, res: Response) => {
   const userId = req.user?.id;
@@ -70,6 +71,15 @@ const getAllServices = catchAsync(async (req: Request, res: Response) => {
 const getSingleService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
   const result = await ServiceService.getSingleServiceFromDB(id);
+
+  if (!result) {
+    return res.status(404).json({
+      success: false,
+      message: "Service not found!",
+      data: null,
+    });
+  }
+
   res.status(httpStatus.OK).json({
     success: true,
     message: "Service fetched successfully!",
@@ -79,14 +89,29 @@ const getSingleService = catchAsync(async (req: Request, res: Response) => {
 
 const deleteService = catchAsync(async (req: Request, res: Response) => {
   const id = req.params.id as string;
-  const userId = req.user?.id as string; // টেকনিশিয়ানের আইডি নিচ্ছি
+  const userId = req.user?.id as string;
 
   await ServiceService.deleteServiceFromDB(id, userId);
-  
+
   res.status(httpStatus.OK).json({
     success: true,
     message: "Service deleted successfully!",
     data: null,
+  });
+});
+
+const updateService = catchAsync(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const result = await ServiceService.updateServiceIntoDB(
+    id as string,
+    req.body,
+  );
+
+  sendResponse(res, {
+    statusCode: httpStatus.OK,
+    success: true,
+    message: "Service updated successfully!",
+    data: result,
   });
 });
 
@@ -95,4 +120,5 @@ export const ServiceController = {
   getAllServices,
   getSingleService,
   deleteService,
+  updateService,
 };

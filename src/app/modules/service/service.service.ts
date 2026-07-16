@@ -163,6 +163,10 @@ const getSingleServiceFromDB = async (id: string) => {
       technicianProfile: true,
     },
   });
+
+  if (!result) {
+    throw new Error("Service not found!");
+  }
   return result;
 };
 
@@ -188,9 +192,28 @@ const deleteServiceFromDB = async (id: string, userId: string) => {
 
   return result;
 };
+
+const updateServiceIntoDB = async (id: string, payload: Partial<any>) => {
+  const isServiceExists = await prisma.service.findUnique({
+    where: { id },
+  });
+
+  if (!isServiceExists) {
+    throw new Error("Service not found!");
+  }
+
+  const result = await prisma.service.update({
+    where: { id },
+    data: payload,
+  });
+
+  return result;
+};
+
 export const ServiceService = {
   createServiceInDB,
   getAllServicesFromDB,
   getSingleServiceFromDB,
   deleteServiceFromDB,
+  updateServiceIntoDB,
 };

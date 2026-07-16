@@ -23,7 +23,16 @@ const createServiceValidationSchema = z.object({
       .uuid("Invalid Category ID format"),
   }),
 });
+const updateServiceValidationSchema = z.object({
+  body: z.object({
+    name: z.string().optional(),
+    description: z.string().optional(),
+    price: z.number().positive().optional(),
+    duration: z.string().optional(),
+    categoryId: z.string().uuid().optional(),
+  }),
+});
 
 export const ServiceValidation = {
-  createServiceValidationSchema,
+  createServiceValidationSchema,updateServiceValidationSchema
 };
