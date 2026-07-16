@@ -14,12 +14,12 @@
   "author": "",
   "type": "module",
   "main": "server.ts",
-  "scripts": {
+ "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && prisma generate",
-    "start": "node dist/server.js",
-    "vercel-build": "prisma generate && tsc"
+    "build": "prisma generate",
+    "start": "tsx src/server.ts",
+    "vercel-build": "prisma generate"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
