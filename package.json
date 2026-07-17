@@ -16,9 +16,9 @@
 "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "build": "tsc && prisma generate",
+    "build": "prisma generate && tsc",
     "start": "node dist/src/server.js",
-    "vercel-build": "tsc && prisma generate"
+    "vercel-build": "prisma generate && tsc"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
