@@ -13,12 +13,12 @@
   "license": "ISC",
   "author": "",
   "main": "server.ts",
-  "scripts": {
+"scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
     "dev": "tsx watch src/server.ts",
-    "build": "prisma generate",
-    "start": "tsx src/server.ts",
-    "vercel-build": "echo 'Skipping Vercel Prisma build'"
+    "build": "tsc && prisma generate",
+    "start": "node dist/src/server.js",
+    "vercel-build": "tsc && prisma generate"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
