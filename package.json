@@ -14,11 +14,10 @@
   "author": "",
   "main": "server.ts",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node dist/server.js",
     "dev": "tsx watch src/server.ts",
     "build": "tsup",
-    "postinstall": "prisma generate",
-    "start": "node api/index.js"
+    "test": "echo \"Error: no test specified\" && exit 1"
   },
   "devDependencies": {
     "@types/cookie-parser": "^1.4.10",
