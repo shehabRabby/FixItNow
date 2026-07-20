@@ -3,6 +3,7 @@
     "outDir": "./dist",
     "rootDir": "./src",
     "module": "CommonJS",
+    "moduleResolution": "bundler",
     "ignoreDeprecations": "6.0",
     "target": "ES2022",
     "types": ["node"],
