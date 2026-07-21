@@ -126,25 +126,133 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
               * └── ✅ **`COMPLETED`** *(Job finished)*
 * 🛑 **`CANCELLED`** *(Customer can cancel prior to IN_PROGRESS)*
 
-## 📡API Endpoints Reference
+---
 
-All API routes are prefixed with /api/v1.
+## 🔄 System Flow Diagrams
 
+### 🔧 1. Customer Journey
+```mermaid
+flowchart LR
+    A[Register / Login] --> B[Browse Services]
+    B --> C[View Tech Profile]
+    C --> D[Make Payment via Stripe]
+    D --> E[Track Job Status]
+    E --> F[Leave Review & Rating]
+```
 
-### 🔑 Authentication (/api/v1/auth)
-MethodEndpointAccessDescriptionPOST/api/v1/auth/registerPublicRegister new user (CUSTOMER or TECHNICIAN)POST/api/v1/auth/loginPublicAuthenticate user and issue JWT cookiesGET/api/v1/auth/meAuthenticatedFetch current logged-in user profile👤 Profile Management (/api/v1/profile)MethodEndpointAccessDescriptionGET/api/v1/profileAuthenticatedGet current user's profile detailsPATCH/api/v1/profileAuthenticatedUpdate user profile information🔨 Services & Categories (/api/v1/services, /api/v1/categories)MethodEndpointAccessDescriptionGET/api/v1/servicesPublicFetch all services with filtering & searchGET/api/v1/services/:idPublicGet detailed information of a specific servicePOST/api/v1/servicesADMIN, TECHNICIANCreate a new serviceGET/api/v1/categoriesPublicList all home service categories
+### 🛠️ 2. Technician Journey
+```mermaid
+flowchart LR
+    A[Register as Technician] --> B[Create Profile]
+    B --> C[Set Availability]
+    C --> D{Booking Request}
+    D -->|Accept| E[Update to IN_PROGRESS]
+    D -->|Decline| F[DECLINED]
+    E --> G[Mark COMPLETED]
+```
 
-### 🧰 Technician Operations (/api/v1/technicians)
-MethodEndpointAccessDescriptionGET/api/v1/techniciansPublicList all technicians with filter parametersGET/api/v1/technicians/:idPublicGet technician profile, skills, and reviewsPUT/api/v1/technicians/profileTECHNICIANCreate or update technician professional profilePUT/api/v1/technicians/availabilityTECHNICIANSet available work hours and time slots📅 Bookings (/api/v1/bookings)MethodEndpointAccessDescriptionPOST/api/v1/bookingsCUSTOMERBook a service/technician slotGET/api/v1/bookingsAuthenticatedRetrieve user-specific bookingsGET/api/v1/bookings/:idAuthenticatedGet detailed booking informationPATCH/api/v1/bookings/:id/statusTECHNICIAN, CUSTOMERUpdate status (Accept, Decline, Cancel, Complete)
+### 📊 3. Booking State Lifecycle
+```mermaid
+flowchart TD
+    A([REQUESTED]) -->|Technician Accepts| B[ACCEPTED]
+    A -->|Technician Declines| C[DECLINED]
+    B -->|Customer Pays via Stripe| D[PAID]
+    D -->|Work Starts| E[IN_PROGRESS]
+    E -->|Work Finished| F([COMPLETED])
+    
+    A -.->|Customer Cancels| G[CANCELLED]
+    B -.->|Customer Cancels| G
+```
 
-### 💳 Payments (/api/v1/payments)
-MethodEndpointAccessDescriptionPOST/api/v1/payments/create-intentCUSTOMERCreate Stripe payment intent for an accepted bookingPOST/api/v1/payments/confirmCUSTOMERConfirm transaction and mark booking as PAIDGET/api/v1/payments/historyAuthenticatedView payment transaction history
+> 💡 **Note:** Customers can cancel a booking at any point before it reaches `IN_PROGRESS` status.
 
-### ⭐ Reviews (/api/v1/reviews)
-MethodEndpointAccessDescriptionPOST/api/v1/reviewsCUSTOMERSubmit review & rating for completed jobsGET/api/v1/reviews/:technicianIdPublicGet all reviews for a specific technician
+---
 
-### 👑 Admin Management (/api/v1/admin)
-MethodEndpointAccessDescriptionGET/api/v1/admin/usersADMINFetch all registered usersPATCH/api/v1/admin/users/:id/statusADMINChange user status (Active / Banned)GET/api/v1/admin/bookingsADMINView and monitor all system bookingsPOST/api/v1/admin/categoriesADMINCreate new service category
+## 📡 API Endpoints Reference
+
+> All API routes are prefixed with `/api/v1`
+
+### 🔑 Authentication (`/api/v1/auth`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/auth/register` | Public | Register new user (`CUSTOMER` or `TECHNICIAN`) |
+| `POST` | `/api/v1/auth/login` | Public | Authenticate user and issue JWT cookies |
+| `GET` | `/api/v1/auth/me` | Authenticated | Fetch current logged-in user profile |
+
+---
+
+### 👤 Profile Management (`/api/v1/profile`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/profile` | Authenticated | Get current user's profile details |
+| `PATCH` | `/api/v1/profile` | Authenticated | Update user profile information |
+
+---
+
+### 🔨 Services & Categories (`/api/v1/services`, `/api/v1/categories`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/services` | Public | Fetch all services with filtering & search |
+| `GET` | `/api/v1/services/:id` | Public | Get detailed information of a specific service |
+| `POST` | `/api/v1/services` | `ADMIN`, `TECHNICIAN` | Create a new service |
+| `GET` | `/api/v1/categories` | Public | List all home service categories |
+
+---
+
+### 🧰 Technician Operations (`/api/v1/technicians`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/technicians` | Public | List all technicians with filter parameters |
+| `GET` | `/api/v1/technicians/:id` | Public | Get technician profile, skills, and reviews |
+| `PUT` | `/api/v1/technicians/profile` | `TECHNICIAN` | Create or update technician professional profile |
+| `PUT` | `/api/v1/technicians/availability` | `TECHNICIAN` | Set available work hours and time slots |
+
+---
+
+### 📅 Bookings (`/api/v1/bookings`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/bookings` | `CUSTOMER` | Book a service/technician slot |
+| `GET` | `/api/v1/bookings` | Authenticated | Retrieve user-specific bookings |
+| `GET` | `/api/v1/bookings/:id` | Authenticated | Get detailed booking information |
+| `PATCH` | `/api/v1/bookings/:id/status` | `TECHNICIAN`, `CUSTOMER` | Update status (Accept, Decline, Cancel, Complete) |
+
+---
+
+### 💳 Payments (`/api/v1/payments`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/payments/create-intent` | `CUSTOMER` | Create Stripe payment intent for an accepted booking |
+| `POST` | `/api/v1/payments/confirm` | `CUSTOMER` | Confirm transaction and mark booking as `PAID` |
+| `GET` | `/api/v1/payments/history` | Authenticated | View payment transaction history |
+
+---
+
+### ⭐ Reviews (`/api/v1/reviews`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `POST` | `/api/v1/reviews` | `CUSTOMER` | Submit review & rating for completed jobs |
+| `GET` | `/api/v1/reviews/:technicianId` | Public | Get all reviews for a specific technician |
+
+---
+
+### 👑 Admin Management (`/api/v1/admin`)
+
+| Method | Endpoint | Access | Description |
+| :--- | :--- | :--- | :--- |
+| `GET` | `/api/v1/admin/users` | `ADMIN` | Fetch all registered users |
+| `PATCH` | `/api/v1/admin/users/:id/status` | `ADMIN` | Change user status (Active / Banned) |
+| `GET` | `/api/v1/admin/bookings` | `ADMIN` | View and monitor all system bookings |
+| `POST` | `/api/v1/admin/categories` | `ADMIN` | Create new service category |
+
+---
 
 
 ### ⚙️ Environment Setup
