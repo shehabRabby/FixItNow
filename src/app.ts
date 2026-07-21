@@ -43,6 +43,10 @@ app.get("/", (req: Request, res: Response) => {
   res.status(200).json({
     success: true,
     message: "Hello, World! FixItNow Server API is spinning safely.",
+    author: {
+      name: "Md. Shehab Al Rabby",
+      profession: "Junior Frontend & Full Stack Web Developer",
+    },
   });
 });
 
