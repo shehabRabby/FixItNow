@@ -241,25 +241,25 @@ flowchart TD
 
 Create a `.env` file in the root directory and configure the following variables:
 
-# Server Configuration
+### Server Configuration
 
-PORT=5000
-NODE_ENV=development
-APP_URL=http://localhost:3000
+PORT=5000<br>
+NODE_ENV=development<br>
+APP_URL=http://localhost:3000<br>
 
-# Database Configuration (PostgreSQL / Prisma)
+### Database Configuration (PostgreSQL / Prisma)
 
 DATABASE_URL="postgresql://username:password@localhost:5432/fixitnow_db?schema=public"
 
-# JWT Secrets
+### JWT Secrets
 
-JWT_ACCESS_SECRET="your_super_secret_access_key"
-JWT_REFRESH_SECRET="your_super_secret_refresh_key"
-JWT_ACCESS_EXPIRATION="1d"
-JWT_REFRESH_EXPIRATION="7d"
-BCRYPT_SALT_ROUNDS=12
+JWT_ACCESS_SECRET="your_super_secret_access_key"<br>
+JWT_REFRESH_SECRET="your_super_secret_refresh_key"<br>
+JWT_ACCESS_EXPIRATION="1d"<br>
+JWT_REFRESH_EXPIRATION="7d"<br>
+BCRYPT_SALT_ROUNDS=12<br>
 
-# Payment Gateway (Stripe)
+### Payment Gateway (Stripe)
 
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
 
@@ -267,7 +267,7 @@ STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
 
 ## 🏃 Getting Started (Local Development)
 
-git clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)
+git clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)<br>
 cd FixItNow
 
 ### Install dependencies:
@@ -276,8 +276,8 @@ npm install
 
 ### Prisma Setup & Database Migration:
 
-npx prisma generate
-npx prisma db push
+npx prisma generate<br>
+npx prisma db push<br>
 
 ### Run Development Server:
 
@@ -287,17 +287,14 @@ npm run dev
 
 ## 🛠️ Build & Deployment
 
-To generate the serverless build bundle for Vercel using tsup:
-npm run build
+To generate the serverless build bundle for Vercel using tsup: <br>
+npm run build<br>
 vercel --prod
 
-# 👨‍💻 Author
+### 👨‍💻 Author
 
-Md. Shehab Al Rabby
-Junior Frontend & Full Stack Web Developer
-🐙 GitHub: @shehabRabby
-🌐 Portfolio: shehabrabby.vercel.app
+**Md. Shehab Al Rabby**  
+*Junior Frontend & Full Stack Web Developer*  
+🐙 **GitHub:** [@shehabRabby](https://github.com/shehabRabby) | 🌐 **Portfolio:** [shehabrabby.vercel.app](https://shehabrabby.vercel.app)
 
-```
-
-```
+---
