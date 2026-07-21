@@ -7,9 +7,9 @@
 
 ## 📌 Live Demo & Resources
 
-* **Live API Base URL:** `https://fix-it-now-backend-steel.vercel.app/`
-* **API Version:** `v1` (`/api/v1/`)
-* **GitHub Repository:** [shehabRabby/FixItNow](https://github.com/shehabRabby/FixItNow)
+- **Live API Base URL:** `https://fix-it-now-backend-steel.vercel.app/`
+- **API Version:** `v1` (`/api/v1/`)
+- **GitHub Repository:** [shehabRabby/FixItNow](https://github.com/shehabRabby/FixItNow)
 
 ---
 
@@ -36,45 +36,49 @@
 
 ## 💻 Tech Stack
 
-| Domain | Technology / Library |
-| :--- | :--- |
-| **Runtime Environment** | Node.js (v20+) |
-| **Programming Language** | TypeScript |
-| **Web Framework** | Express.js (v5) |
-| **ORM / Database Tool** | Prisma (v7) with PostgreSQL Adapter |
-| **Database** | PostgreSQL |
-| **Authentication & Security** | JWT (JSON Web Tokens), Bcrypt.js, Cookie-Parser |
+| Domain                          | Technology / Library                                   |
+| :------------------------------ | :----------------------------------------------------- |
+| **Runtime Environment**         | Node.js (v20+)                                         |
+| **Programming Language**        | TypeScript                                             |
+| **Web Framework**               | Express.js (v5)                                        |
+| **ORM / Database Tool**         | Prisma (v7) with PostgreSQL Adapter                    |
+| **Database**                    | PostgreSQL                                             |
+| **Authentication & Security**   | JWT (JSON Web Tokens), Bcrypt.js, Cookie-Parser        |
 | **Validation & Error Handling** | Zod Schema Validation, Global Error Handler Middleware |
-| **Payment Gateways** | Stripe API Integration |
-| **Bundler & Build Tool** | `tsup`, `tsx` |
-| **Deployment Platform** | Vercel (Serverless Edge Functions) |
+| **Payment Gateways**            | Stripe API Integration                                 |
+| **Bundler & Build Tool**        | `tsup`, `tsx`                                          |
+| **Deployment Platform**         | Vercel (Serverless Edge Functions)                     |
 
 ---
 
 ## ✨ Key Features
 
 ### 🌐 Public Features
-* Browse available home services and registered technicians with dynamic search and filtering (by service category, rating, price, and location).
-* View technician profiles with skill sets, past jobs, and authentic customer reviews.
+
+- Browse available home services and registered technicians with dynamic search and filtering (by service category, rating, price, and location).
+- View technician profiles with skill sets, past jobs, and authentic customer reviews.
 
 ### 👤 Customer Features
-* Secure Registration and Authentication (JWT based with cookie storage).
-* Book technicians for targeted services and specific time slots.
-* Integrated Online Payments via Stripe for accepted bookings.
-* Access transaction history and booking status timeline.
-* Submit verified service ratings and reviews upon job completion.
-* Profile customization and account management.
+
+- Secure Registration and Authentication (JWT based with cookie storage).
+- Book technicians for targeted services and specific time slots.
+- Integrated Online Payments via Stripe for accepted bookings.
+- Access transaction history and booking status timeline.
+- Submit verified service ratings and reviews upon job completion.
+- Profile customization and account management.
 
 ### 🛠️ Technician Features
-* Custom profile creation detailing skills, hourly/job pricing, and experience.
-* Real-time slot management for time availability.
-* Booking Request Pipeline: Accept or Decline incoming service requests.
-* Job Lifecycle Management: Update status from `ACCEPTED` → `IN_PROGRESS` → `COMPLETED`.
+
+- Custom profile creation detailing skills, hourly/job pricing, and experience.
+- Real-time slot management for time availability.
+- Booking Request Pipeline: Accept or Decline incoming service requests.
+- Job Lifecycle Management: Update status from `ACCEPTED` → `IN_PROGRESS` → `COMPLETED`.
 
 ### 🛡️ Admin Features
-* Comprehensive User Governance: Ban/Unban or moderate accounts (Customers & Technicians).
-* System-wide Booking Overview: Track and audit all platform bookings.
-* Dynamic Category Management: Create, edit, and organize service categories.
+
+- Comprehensive User Governance: Ban/Unban or moderate accounts (Customers & Technicians).
+- System-wide Booking Overview: Track and audit all platform bookings.
+- Dynamic Category Management: Create, edit, and organize service categories.
 
 ---
 
@@ -82,11 +86,11 @@
 
 FixItNow uses **Role-Based Access Control (RBAC)** to restrict sensitive endpoints based on user roles:
 
-| Role | Access Level & Key Permissions |
-| :--- | :--- |
-| **`CUSTOMER`** | Can browse services, create bookings, process payments, write reviews, and track own bookings. |
-| **`TECHNICIAN`** | Can build service profiles, set working schedules, accept/decline customer bookings, and mark job progress. |
-| **`ADMIN`** | Full access. Can manage all users, ban accounts, oversee all platform transactions, and configure categories. |
+| Role             | Access Level & Key Permissions                                                                                |
+| :--------------- | :------------------------------------------------------------------------------------------------------------ |
+| **`CUSTOMER`**   | Can browse services, create bookings, process payments, write reviews, and track own bookings.                |
+| **`TECHNICIAN`** | Can build service profiles, set working schedules, accept/decline customer bookings, and mark job progress.   |
+| **`ADMIN`**      | Full access. Can manage all users, ban accounts, oversee all platform transactions, and configure categories. |
 
 ---
 
@@ -107,6 +111,7 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 ## 🔄 System Flow Diagrams
 
 ### 🔧 1. Customer Journey
+
 ```mermaid
 flowchart LR
     A[Register / Login] --> B[Browse Services]
@@ -117,6 +122,7 @@ flowchart LR
 ```
 
 ### 🛠️ 2. Technician Journey
+
 ```mermaid
 flowchart LR
     A[Register as Technician] --> B[Create Profile]
@@ -128,6 +134,7 @@ flowchart LR
 ```
 
 ### 📊 3. Booking State Lifecycle
+
 ```mermaid
 flowchart TD
     A([REQUESTED]) -->|Technician Accepts| B[ACCEPTED]
@@ -135,7 +142,7 @@ flowchart TD
     B -->|Customer Pays via Stripe| D[PAID]
     D -->|Work Starts| E[IN_PROGRESS]
     E -->|Work Finished| F([COMPLETED])
-    
+
     A -.->|Customer Cancels| G[CANCELLED]
     B -.->|Customer Cancels| G
 ```
@@ -150,83 +157,83 @@ flowchart TD
 
 ### 🔑 Authentication (`/api/v1/auth`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/auth/register` | Public | Register new user (`CUSTOMER` or `TECHNICIAN`) |
-| `POST` | `/api/v1/auth/login` | Public | Authenticate user and issue JWT cookies |
-| `GET` | `/api/v1/auth/me` | Authenticated | Fetch current logged-in user profile |
+| Method | Endpoint                | Access        | Description                                    |
+| :----- | :---------------------- | :------------ | :--------------------------------------------- |
+| `POST` | `/api/v1/auth/register` | Public        | Register new user (`CUSTOMER` or `TECHNICIAN`) |
+| `POST` | `/api/v1/auth/login`    | Public        | Authenticate user and issue JWT cookies        |
+| `GET`  | `/api/v1/auth/me`       | Authenticated | Fetch current logged-in user profile           |
 
 ---
 
 ### 👤 Profile Management (`/api/v1/profile`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/profile` | Authenticated | Get current user's profile details |
-| `PATCH` | `/api/v1/profile` | Authenticated | Update user profile information |
+| Method  | Endpoint          | Access        | Description                        |
+| :------ | :---------------- | :------------ | :--------------------------------- |
+| `GET`   | `/api/v1/profile` | Authenticated | Get current user's profile details |
+| `PATCH` | `/api/v1/profile` | Authenticated | Update user profile information    |
 
 ---
 
 ### 🔨 Services & Categories (`/api/v1/services`, `/api/v1/categories`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/services` | Public | Fetch all services with filtering & search |
-| `GET` | `/api/v1/services/:id` | Public | Get detailed information of a specific service |
-| `POST` | `/api/v1/services` | `ADMIN`, `TECHNICIAN` | Create a new service |
-| `GET` | `/api/v1/categories` | Public | List all home service categories |
+| Method | Endpoint               | Access                | Description                                    |
+| :----- | :--------------------- | :-------------------- | :--------------------------------------------- |
+| `GET`  | `/api/v1/services`     | Public                | Fetch all services with filtering & search     |
+| `GET`  | `/api/v1/services/:id` | Public                | Get detailed information of a specific service |
+| `POST` | `/api/v1/services`     | `ADMIN`, `TECHNICIAN` | Create a new service                           |
+| `GET`  | `/api/v1/categories`   | Public                | List all home service categories               |
 
 ---
 
 ### 🧰 Technician Operations (`/api/v1/technicians`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/technicians` | Public | List all technicians with filter parameters |
-| `GET` | `/api/v1/technicians/:id` | Public | Get technician profile, skills, and reviews |
-| `PUT` | `/api/v1/technicians/profile` | `TECHNICIAN` | Create or update technician professional profile |
-| `PUT` | `/api/v1/technicians/availability` | `TECHNICIAN` | Set available work hours and time slots |
+| Method | Endpoint                           | Access       | Description                                      |
+| :----- | :--------------------------------- | :----------- | :----------------------------------------------- |
+| `GET`  | `/api/v1/technicians`              | Public       | List all technicians with filter parameters      |
+| `GET`  | `/api/v1/technicians/:id`          | Public       | Get technician profile, skills, and reviews      |
+| `PUT`  | `/api/v1/technicians/profile`      | `TECHNICIAN` | Create or update technician professional profile |
+| `PUT`  | `/api/v1/technicians/availability` | `TECHNICIAN` | Set available work hours and time slots          |
 
 ---
 
 ### 📅 Bookings (`/api/v1/bookings`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/bookings` | `CUSTOMER` | Book a service/technician slot |
-| `GET` | `/api/v1/bookings` | Authenticated | Retrieve user-specific bookings |
-| `GET` | `/api/v1/bookings/:id` | Authenticated | Get detailed booking information |
+| Method  | Endpoint                      | Access                   | Description                                       |
+| :------ | :---------------------------- | :----------------------- | :------------------------------------------------ |
+| `POST`  | `/api/v1/bookings`            | `CUSTOMER`               | Book a service/technician slot                    |
+| `GET`   | `/api/v1/bookings`            | Authenticated            | Retrieve user-specific bookings                   |
+| `GET`   | `/api/v1/bookings/:id`        | Authenticated            | Get detailed booking information                  |
 | `PATCH` | `/api/v1/bookings/:id/status` | `TECHNICIAN`, `CUSTOMER` | Update status (Accept, Decline, Cancel, Complete) |
 
 ---
 
 ### 💳 Payments (`/api/v1/payments`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/payments/create-intent` | `CUSTOMER` | Create Stripe payment intent for an accepted booking |
-| `POST` | `/api/v1/payments/confirm` | `CUSTOMER` | Confirm transaction and mark booking as `PAID` |
-| `GET` | `/api/v1/payments/history` | Authenticated | View payment transaction history |
+| Method | Endpoint                         | Access        | Description                                          |
+| :----- | :------------------------------- | :------------ | :--------------------------------------------------- |
+| `POST` | `/api/v1/payments/create-intent` | `CUSTOMER`    | Create Stripe payment intent for an accepted booking |
+| `POST` | `/api/v1/payments/confirm`       | `CUSTOMER`    | Confirm transaction and mark booking as `PAID`       |
+| `GET`  | `/api/v1/payments/history`       | Authenticated | View payment transaction history                     |
 
 ---
 
 ### ⭐ Reviews (`/api/v1/reviews`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `POST` | `/api/v1/reviews` | `CUSTOMER` | Submit review & rating for completed jobs |
-| `GET` | `/api/v1/reviews/:technicianId` | Public | Get all reviews for a specific technician |
+| Method | Endpoint                        | Access     | Description                               |
+| :----- | :------------------------------ | :--------- | :---------------------------------------- |
+| `POST` | `/api/v1/reviews`               | `CUSTOMER` | Submit review & rating for completed jobs |
+| `GET`  | `/api/v1/reviews/:technicianId` | Public     | Get all reviews for a specific technician |
 
 ---
 
 ### 👑 Admin Management (`/api/v1/admin`)
 
-| Method | Endpoint | Access | Description |
-| :--- | :--- | :--- | :--- |
-| `GET` | `/api/v1/admin/users` | `ADMIN` | Fetch all registered users |
+| Method  | Endpoint                         | Access  | Description                          |
+| :------ | :------------------------------- | :------ | :----------------------------------- |
+| `GET`   | `/api/v1/admin/users`            | `ADMIN` | Fetch all registered users           |
 | `PATCH` | `/api/v1/admin/users/:id/status` | `ADMIN` | Change user status (Active / Banned) |
-| `GET` | `/api/v1/admin/bookings` | `ADMIN` | View and monitor all system bookings |
-| `POST` | `/api/v1/admin/categories` | `ADMIN` | Create new service category |
+| `GET`   | `/api/v1/admin/bookings`         | `ADMIN` | View and monitor all system bookings |
+| `POST`  | `/api/v1/admin/categories`       | `ADMIN` | Create new service category          |
 
 ---
 
@@ -234,16 +241,18 @@ flowchart TD
 
 Create a `.env` file in the root directory and configure the following variables:
 
-```env
 # Server Configuration
+
 PORT=5000
 NODE_ENV=development
 APP_URL=http://localhost:3000
 
 # Database Configuration (PostgreSQL / Prisma)
+
 DATABASE_URL="postgresql://username:password@localhost:5432/fixitnow_db?schema=public"
 
 # JWT Secrets
+
 JWT_ACCESS_SECRET="your_super_secret_access_key"
 JWT_REFRESH_SECRET="your_super_secret_refresh_key"
 JWT_ACCESS_EXPIRATION="1d"
@@ -251,34 +260,44 @@ JWT_REFRESH_EXPIRATION="7d"
 BCRYPT_SALT_ROUNDS=12
 
 # Payment Gateway (Stripe)
+
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
 
 ---
 
+## 🏃 Getting Started (Local Development)
 
-### 🏃 Getting Started (Local Development)
 git clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)
 cd FixItNow
 
-Install dependencies:
+### Install dependencies:
+
 npm install
-Prisma Setup & Database Migration:
+
+### Prisma Setup & Database Migration:
+
 npx prisma generate
 npx prisma db push
-Run Development Server:
+
+### Run Development Server:
+
 npm run dev
 
 🌐 The server will start running at http://localhost:5000.
 
+## 🛠️ Build & Deployment
 
-🛠️ Build & Deployment
 To generate the serverless build bundle for Vercel using tsup:
 npm run build
 vercel --prod
 
+# 👨‍💻 Author
 
-👨‍💻 Author
 Md. Shehab Al Rabby
 Junior Frontend & Full Stack Web Developer
 🐙 GitHub: @shehabRabby
 🌐 Portfolio: shehabrabby.vercel.app
+
+```
+
+```
