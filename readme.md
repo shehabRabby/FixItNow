@@ -7,7 +7,7 @@
 
 ## 📌 Live Demo & Resources
 
-- **Live API Base URL:** `https://fix-it-now-backend-steel.vercel.app/`
+- **Live API Base URL:** [fix-it-now-mocha.vercel.app](https://fix-it-now-mocha.vercel.app/)
 - **API Version:** `v1` (`/api/v1/`)
 - **GitHub Repository:** [shehabRabby/FixItNow](https://github.com/shehabRabby/FixItNow)
 
