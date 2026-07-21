@@ -7,7 +7,7 @@
 
 ## 📌 Live Demo & Resources
 
-* **Live API Base URL:** `https://fix-it-now-mocha.vercel.app/`
+* **Live API Base URL:** `https://fix-it-now-backend-steel.vercel.app/`
 * **API Version:** `v1` (`/api/v1/`)
 * **GitHub Repository:** [shehabRabby/FixItNow](https://github.com/shehabRabby/FixItNow)
 
@@ -107,7 +107,7 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 ## 🔄 System Flow Diagrams
 
 ### 🔧 1. Customer Journey
-```text
+
 ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
 │   Register   │ ───► │    Browse    │ ───► │ View Tech    │
 │  / Login     │      │   Services   │      │   Profile    │
@@ -119,9 +119,7 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 │ & Rating     │      │ Completion   │      │   (Stripe)   │
 └──────────────┘      └──────────────┘      └──────────────┘
 
-
-🛠️ 2. Technician Journey
-
+🛠️ 2. Technician JourneyPlaintext
 ┌──────────────┐      ┌──────────────┐      ┌──────────────┐
 │  Register as │ ───► │ Create Tech  │ ───► │ Set Time     │
 │  Technician  │      │   Profile    │      │ Availability │
@@ -133,9 +131,8 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 │ Completed    │      │ IN_PROGRESS  │      │ Decline Book │
 └──────────────┘      └──────────────┘      └──────────────┘
 
-📊 3. Booking State Lifecycle
-
-┌──────────────┐
+📊 3. Booking State LifecyclePlaintext      
+                    ┌──────────────┐
                     │  REQUESTED   │
                     └──────────────┘
                      /            \
@@ -164,14 +161,33 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 
 💡 Note: Customers can cancel a booking at any point before it reaches IN_PROGRESS status.
 
+## 📡API Endpoints Reference
 
-⚙️ Environment Setup
+All API routes are prefixed with /api/v1.
 
-Create a .env file in the root directory and configure the following variables:
-# Server Configuration
+
+### 🔑 Authentication (/api/v1/auth)
+MethodEndpointAccessDescriptionPOST/api/v1/auth/registerPublicRegister new user (CUSTOMER or TECHNICIAN)POST/api/v1/auth/loginPublicAuthenticate user and issue JWT cookiesGET/api/v1/auth/meAuthenticatedFetch current logged-in user profile👤 Profile Management (/api/v1/profile)MethodEndpointAccessDescriptionGET/api/v1/profileAuthenticatedGet current user's profile detailsPATCH/api/v1/profileAuthenticatedUpdate user profile information🔨 Services & Categories (/api/v1/services, /api/v1/categories)MethodEndpointAccessDescriptionGET/api/v1/servicesPublicFetch all services with filtering & searchGET/api/v1/services/:idPublicGet detailed information of a specific servicePOST/api/v1/servicesADMIN, TECHNICIANCreate a new serviceGET/api/v1/categoriesPublicList all home service categories
+
+### 🧰 Technician Operations (/api/v1/technicians)
+MethodEndpointAccessDescriptionGET/api/v1/techniciansPublicList all technicians with filter parametersGET/api/v1/technicians/:idPublicGet technician profile, skills, and reviewsPUT/api/v1/technicians/profileTECHNICIANCreate or update technician professional profilePUT/api/v1/technicians/availabilityTECHNICIANSet available work hours and time slots📅 Bookings (/api/v1/bookings)MethodEndpointAccessDescriptionPOST/api/v1/bookingsCUSTOMERBook a service/technician slotGET/api/v1/bookingsAuthenticatedRetrieve user-specific bookingsGET/api/v1/bookings/:idAuthenticatedGet detailed booking informationPATCH/api/v1/bookings/:id/statusTECHNICIAN, CUSTOMERUpdate status (Accept, Decline, Cancel, Complete)
+
+### 💳 Payments (/api/v1/payments)
+MethodEndpointAccessDescriptionPOST/api/v1/payments/create-intentCUSTOMERCreate Stripe payment intent for an accepted bookingPOST/api/v1/payments/confirmCUSTOMERConfirm transaction and mark booking as PAIDGET/api/v1/payments/historyAuthenticatedView payment transaction history
+
+### ⭐ Reviews (/api/v1/reviews)
+MethodEndpointAccessDescriptionPOST/api/v1/reviewsCUSTOMERSubmit review & rating for completed jobsGET/api/v1/reviews/:technicianIdPublicGet all reviews for a specific technician
+
+### 👑 Admin Management (/api/v1/admin)
+MethodEndpointAccessDescriptionGET/api/v1/admin/usersADMINFetch all registered usersPATCH/api/v1/admin/users/:id/statusADMINChange user status (Active / Banned)GET/api/v1/admin/bookingsADMINView and monitor all system bookingsPOST/api/v1/admin/categoriesADMINCreate new service category
+
+
+### ⚙️ Environment Setup
+Create a .env file in the root directory and configure the following variables:Code snippet# Server Configuration
 PORT=5000
 NODE_ENV=development
 APP_URL=http://localhost:3000
+
 
 # Database Configuration (PostgreSQL / Prisma)
 DATABASE_URL="postgresql://username:password@localhost:5432/fixitnow_db?schema=public"
@@ -185,49 +201,21 @@ BCRYPT_SALT_ROUNDS=12
 
 # Payment Gateway (Stripe)
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
-
-
-
-
-
-
-
-🏃 Getting Started (Local Development)
-Clone the repository:
-
-Bash
-git clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)
+## 🏃 Getting Started (Local Development)Clone the repository:Bashgit clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)
 cd FixItNow
-Install dependencies:
 
-Bash
-npm install
-Prisma Setup & Database Migration:
-
-Bash
-npx prisma generate
+Install dependencies:Bashnpm install
+Prisma Setup & Database Migration:Bashnpx prisma generate
 npx prisma db push
-Run Development Server:
-
-Bash
-npm run dev
-The server will start at http://localhost:5000.
-
-
-
-🛠️ Build & Deployment
-To generate the serverless build bundle for Vercel using tsup:
-
-Bash
-# Generate Prisma Client & Bundle with tsup
+Run Development Server:Bashnpm run dev
+The server will start at http://localhost:5000.🛠️ Build & DeploymentTo generate the serverless build bundle for Vercel using tsup:Bash# Generate Prisma Client & Bundle with tsup
 npm run build
 
 # Deploy manually via Vercel CLI
 vercel --prod
 
 
-👨‍💻 Author
-Md. Shehab Al Rabby
+## 👨‍💻 AuthorMd. Shehab Al Rabby
 Junior Frontend & Full Stack Web Developer
 GitHub: @shehabRabby
 Portfolio: shehabrabby.vercel.app
