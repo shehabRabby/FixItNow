@@ -107,30 +107,6 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 ## 🔄 System Flow Diagrams
 
 ### 🔧 1. Customer Journey
-`1. Register / Login` ➔ `2. Browse Services` ➔ `3. View Tech Profile` ➔ `4. Pay via Stripe` ➔ `5. Track Job` ➔ `6. Leave Review`
-
----
-
-### 🛠️ 2. Technician Journey
-`1. Register` ➔ `2. Setup Profile` ➔ `3. Set Schedule` ➔ `4. Accept / Decline` ➔ `5. In Progress` ➔ `6. Mark Completed`
-
----
-
-### 📊 3. Booking State Lifecycle
-
-* **`REQUESTED`** *(Initial state when customer books)*
-  * ├── ❌ **`DECLINED`** *(If technician rejects)*
-  * └── 🟢 **`ACCEPTED`** *(If technician accepts)*
-      * └── 💳 **`PAID`** *(Payment confirmed via Stripe)*
-          * └── ⚙️ **`IN_PROGRESS`** *(Technician starts service)*
-              * └── ✅ **`COMPLETED`** *(Job finished)*
-* 🛑 **`CANCELLED`** *(Customer can cancel prior to IN_PROGRESS)*
-
----
-
-## 🔄 System Flow Diagrams
-
-### 🔧 1. Customer Journey
 ```mermaid
 flowchart LR
     A[Register / Login] --> B[Browse Services]
@@ -254,13 +230,15 @@ flowchart TD
 
 ---
 
+## ⚙️ Environment Setup
 
-### ⚙️ Environment Setup
-Create a .env file in the root directory and configure the following variables:Code snippet# Server Configuration
+Create a `.env` file in the root directory and configure the following variables:
+
+```env
+# Server Configuration
 PORT=5000
 NODE_ENV=development
 APP_URL=http://localhost:3000
-
 
 # Database Configuration (PostgreSQL / Prisma)
 DATABASE_URL="postgresql://username:password@localhost:5432/fixitnow_db?schema=public"
@@ -274,21 +252,33 @@ BCRYPT_SALT_ROUNDS=12
 
 # Payment Gateway (Stripe)
 STRIPE_SECRET_KEY="sk_test_your_stripe_secret_key"
-## 🏃 Getting Started (Local Development)Clone the repository:Bashgit clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)
+
+---
+
+
+### 🏃 Getting Started (Local Development)
+git clone [https://github.com/shehabRabby/FixItNow.git](https://github.com/shehabRabby/FixItNow.git)
 cd FixItNow
 
-Install dependencies:Bashnpm install
-Prisma Setup & Database Migration:Bashnpx prisma generate
+Install dependencies:
+npm install
+Prisma Setup & Database Migration:
+npx prisma generate
 npx prisma db push
-Run Development Server:Bashnpm run dev
-The server will start at http://localhost:5000.🛠️ Build & DeploymentTo generate the serverless build bundle for Vercel using tsup:Bash# Generate Prisma Client & Bundle with tsup
-npm run build
+Run Development Server:
+npm run dev
 
-# Deploy manually via Vercel CLI
+🌐 The server will start running at http://localhost:5000.
+
+
+🛠️ Build & Deployment
+To generate the serverless build bundle for Vercel using tsup:
+npm run build
 vercel --prod
 
 
-## 👨‍💻 AuthorMd. Shehab Al Rabby
+👨‍💻 Author
+Md. Shehab Al Rabby
 Junior Frontend & Full Stack Web Developer
-GitHub: @shehabRabby
-Portfolio: shehabrabby.vercel.app
+🐙 GitHub: @shehabRabby
+🌐 Portfolio: shehabrabby.vercel.app
