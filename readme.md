@@ -107,59 +107,24 @@ The database is built on PostgreSQL using **Prisma ORM**. Key tables and relatio
 ## 🔄 System Flow Diagrams
 
 ### 🔧 1. Customer Journey
+`1. Register / Login` ➔ `2. Browse Services` ➔ `3. View Tech Profile` ➔ `4. Pay via Stripe` ➔ `5. Track Job` ➔ `6. Leave Review`
 
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│   Register   │ ───► │    Browse    │ ───► │ View Tech    │
-│  / Login     │      │   Services   │      │   Profile    │
-└──────────────┘      └──────────────┘      └──────────────┘
-                                                   │
-                                                   ▼
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│ Leave Review │ ◄─── │ Track Job /  │ ◄─── │ Make Payment │
-│ & Rating     │      │ Completion   │      │   (Stripe)   │
-└──────────────┘      └──────────────┘      └──────────────┘
+---
 
-🛠️ 2. Technician JourneyPlaintext
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│  Register as │ ───► │ Create Tech  │ ───► │ Set Time     │
-│  Technician  │      │   Profile    │      │ Availability │
-└──────────────┘      └──────────────┘      └──────────────┘
-                                                   │
-                                                   ▼
-┌──────────────┐      ┌──────────────┐      ┌──────────────┐
-│ Mark Job     │ ◄─── │ Update Job   │ ◄─── │  Accept /    │
-│ Completed    │      │ IN_PROGRESS  │      │ Decline Book │
-└──────────────┘      └──────────────┘      └──────────────┘
+### 🛠️ 2. Technician Journey
+`1. Register` ➔ `2. Setup Profile` ➔ `3. Set Schedule` ➔ `4. Accept / Decline` ➔ `5. In Progress` ➔ `6. Mark Completed`
 
-📊 3. Booking State LifecyclePlaintext      
-                    ┌──────────────┐
-                    │  REQUESTED   │
-                    └──────────────┘
-                     /            \
-         (technician)              (technician)
-           accepts                   declines
-             /                          \
-            ▼                            ▼
-    ┌──────────────┐             ┌──────────────┐
-    │   ACCEPTED   │             │   DECLINED   │
-    └──────────────┘             └──────────────┘
-           │
-           ▼
-    ┌──────────────┐
-    │     PAID     │  (via Stripe Payment)
-    └──────────────┘
-           │
-           ▼
-    ┌──────────────┐
-    │ IN_PROGRESS  │
-    └──────────────┘
-           │
-           ▼
-    ┌──────────────┐
-    │  COMPLETED   │
-    └──────────────┘
+---
 
-💡 Note: Customers can cancel a booking at any point before it reaches IN_PROGRESS status.
+### 📊 3. Booking State Lifecycle
+
+* **`REQUESTED`** *(Initial state when customer books)*
+  * ├── ❌ **`DECLINED`** *(If technician rejects)*
+  * └── 🟢 **`ACCEPTED`** *(If technician accepts)*
+      * └── 💳 **`PAID`** *(Payment confirmed via Stripe)*
+          * └── ⚙️ **`IN_PROGRESS`** *(Technician starts service)*
+              * └── ✅ **`COMPLETED`** *(Job finished)*
+* 🛑 **`CANCELLED`** *(Customer can cancel prior to IN_PROGRESS)*
 
 ## 📡API Endpoints Reference
 
