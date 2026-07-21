@@ -295,6 +295,6 @@ vercel --prod
 
 **Md. Shehab Al Rabby**  
 *Junior Frontend & Full Stack Web Developer*  
-🐙 **GitHub:** [@shehabRabby](https://github.com/shehabRabby) | 🌐 **Portfolio:** [shehabrabby.vercel.app](https://shehabrabby.vercel.app)
+🐙 **GitHub:** [@shehabRabby](https://github.com/shehabRabby) | 
 
 ---
