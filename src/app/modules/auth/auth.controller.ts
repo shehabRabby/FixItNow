@@ -18,10 +18,10 @@ const loginUser = catchAsync(async (req: Request, res: Response) => {
     data: {
       user,
       accessToken,
+      refreshToken,
     },
   });
 });
-
 
 const getMyProfile = catchAsync(async (req: Request, res: Response) => {
   res.status(httpStatus.OK).json({
